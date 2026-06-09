@@ -3,22 +3,10 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { getStoredUser } from '@/lib/user';
-import { useRouter } from 'next/navigation';
-import {
-  Play,
-  Trophy,
-  Coins,
-  Home,
-  Gamepad2,
-  TrendingUp,
-  Wallet as WalletIcon,
-  User,
-  ShieldCheck,
-} from 'lucide-react';
+import { Play, Trophy, Coins, ShieldCheck, Sparkles, TrendingUp, Shield, ChevronRight } from 'lucide-react';
 
 export default function LandingPage() {
   const [user, setUser] = useState<any>(null);
-  const router = useRouter();
 
   useEffect(() => {
     const storedUser = getStoredUser();
@@ -27,151 +15,201 @@ export default function LandingPage() {
     }
   }, []);
 
-  const walletBalance = user?.walletBalance ?? 560.25;
-
-  const categories = [
-    { label: 'Sports', icon: '⚽', color: 'from-indigo-500 to-cyan-400' },
-    { label: 'Casino', icon: '🎲', color: 'from-fuchsia-500 to-pink-400' },
-    { label: 'Crash', icon: '🚀', color: 'from-amber-500 to-orange-400' },
-    { label: 'Tournaments', icon: '🏆', color: 'from-emerald-500 to-lime-400' },
+  const stats = [
+    { label: 'Active Players', value: '250K+' },
+    { label: 'Games Available', value: '150+' },
+    { label: 'Tournaments', value: '10K+' },
+    { label: 'Daily Rewards', value: '5.2M+' },
   ];
 
-  const topCoins = [
-    { name: 'SOFCOIN', symbol: 'SOF', value: '$0.018', change: '+24.5%', color: 'text-yellow-300' },
-    { name: 'Bitcoin', symbol: 'BTC', value: '$67,890.12', change: '+2.35%', color: 'text-emerald-400' },
-    { name: 'Ethereum', symbol: 'ETH', value: '$3,245.67', change: '+1.85%', color: 'text-emerald-400' },
+  const features = [
+    {
+      title: 'Live Sports Betting',
+      description: 'Place fast, secure bets across multiple sports and events.',
+      icon: '⚽',
+    },
+    {
+      title: 'Casino Classics',
+      description: 'Enjoy roulette, slots, blackjack, and live dealer action.',
+      icon: '🎰',
+    },
+    {
+      title: 'Instant Mining',
+      description: 'Earn SofCoin rewards while you play and stake daily.',
+      icon: '⛏️',
+    },
+    {
+      title: 'Tournament Leaderboards',
+      description: 'Climb the ranks and win exclusive prize pools.',
+      icon: '🏆',
+    },
   ];
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(139,92,246,0.18),_transparent_35%),linear-gradient(180deg,#020617_0%,#090b17_100%)] text-white overflow-hidden">
-      <div className="max-w-md mx-auto px-5 pb-28">
-        <header className="pt-8 pb-4 flex items-start justify-between gap-4">
-          <div>
-            <p className="text-sm uppercase tracking-[0.35em] text-purple-400/80">SofStake</p>
-            <h1 className="text-3xl font-black tracking-tight mt-2">Win Big Everyday</h1>
-          </div>
-          <div className="rounded-3xl border border-white/10 bg-slate-950/90 px-4 py-3 shadow-[0_20px_120px_rgba(139,92,246,0.18)]">
-            <p className="text-xs uppercase tracking-[0.25em] text-slate-400">Wallet Balance</p>
-            <p className="mt-2 text-lg font-bold">₦{Number(walletBalance).toLocaleString()}</p>
-          </div>
-        </header>
+    <div className="min-h-screen bg-slate-950 text-white">
+      <header className="border-b border-white/10 bg-slate-950/80 backdrop-blur-xl sticky top-0 z-50">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+          <Link href="/" className="flex items-center gap-3">
+            <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-600 to-fuchsia-500 text-xl font-black text-white shadow-lg shadow-purple-800/30">
+              S
+            </span>
+            <div>
+              <p className="text-lg font-semibold tracking-tight">SofStake</p>
+              <p className="text-xs uppercase tracking-[0.35em] text-purple-300">Play. Bet. Mine.</p>
+            </div>
+          </Link>
 
-        <main className="space-y-6">
-          <section className="rounded-[2rem] border border-white/10 bg-slate-950/90 p-6 shadow-2xl shadow-purple-900/20 backdrop-blur-xl">
-            <div className="inline-flex items-center gap-2 rounded-full bg-purple-500/20 px-4 py-2 text-xs uppercase tracking-[0.3em] text-purple-200 font-semibold">
-              <span className="h-2 w-2 rounded-full bg-emerald-400" /> Trending
+          <div className="hidden items-center gap-8 md:flex">
+            <Link href="#features" className="text-sm uppercase tracking-[0.35em] text-slate-300 transition hover:text-white">
+              Features
+            </Link>
+            <Link href="#stats" className="text-sm uppercase tracking-[0.35em] text-slate-300 transition hover:text-white">
+              Stats
+            </Link>
+            <Link href="#cta" className="text-sm uppercase tracking-[0.35em] text-slate-300 transition hover:text-white">
+              Join
+            </Link>
+          </div>
+
+          <div className="flex items-center gap-3">
+            {user ? (
+              <Link
+                href="/dashboard"
+                className="rounded-full border border-white/10 bg-white/5 px-5 py-2 text-sm font-semibold text-white transition hover:bg-white/10"
+              >
+                Dashboard
+              </Link>
+            ) : (
+              <>
+                <Link
+                  href="/auth"
+                  className="rounded-full border border-white/10 px-5 py-2 text-sm font-semibold text-slate-300 transition hover:border-purple-400 hover:text-white"
+                >
+                  Login
+                </Link>
+                <Link
+                  href="/auth"
+                  className="rounded-full bg-gradient-to-r from-purple-600 to-fuchsia-500 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-purple-800/20 transition hover:from-purple-700 hover:to-fuchsia-600"
+                >
+                  Sign Up
+                </Link>
+              </>
+            )}
+          </div>
+        </div>
+      </header>
+
+      <main className="mx-auto max-w-7xl px-6 py-20">
+        <section className="grid gap-14 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+          <div className="space-y-8">
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/5 px-4 py-2 text-sm uppercase tracking-[0.35em] text-purple-300 shadow-sm shadow-purple-500/10">
+              <Sparkles size={16} /> New launch: SofStake 2.0
             </div>
 
-            <div className="mt-6 space-y-5">
-              <div>
-                <p className="text-sm uppercase tracking-[0.3em] text-slate-400">Play. Bet. Mine.</p>
-                <h2 className="mt-3 text-4xl font-black leading-tight">The mobile hub for crypto gaming.</h2>
-              </div>
-
-              <p className="text-sm text-slate-300 leading-6">
-                Explore sports, casino games, crash rounds and tournaments from one sleek interface.
+            <div className="space-y-6">
+              <h1 className="max-w-3xl text-5xl font-black leading-tight text-white md:text-6xl">
+                Play the next wave of gaming, betting, and crypto rewards.
+              </h1>
+              <p className="max-w-xl text-lg text-slate-300 leading-8">
+                SofStake combines live sports, casino favorites, crash games and a reward-driven mining hub for one seamless experience.
               </p>
-
-              <div className="grid gap-3 sm:grid-cols-2">
-                <Link
-                  href={user ? '/dashboard' : '/auth'}
-                  className="rounded-3xl bg-gradient-to-r from-purple-600 to-fuchsia-500 px-5 py-4 text-center text-sm font-semibold uppercase tracking-[0.2em] text-white shadow-lg shadow-purple-700/30 transition hover:scale-[1.01]"
-                >
-                  Play Now
-                </Link>
-                <Link
-                  href={user ? '/dashboard' : '/auth'}
-                  className="rounded-3xl border border-white/10 bg-white/5 px-5 py-4 text-center text-sm font-semibold uppercase tracking-[0.2em] text-slate-100 transition hover:bg-white/10"
-                >
-                  Join Tournament
-                </Link>
-              </div>
-            </div>
-          </section>
-
-          <section className="grid grid-cols-2 gap-4">
-            {categories.map((item) => (
-              <div key={item.label} className={`rounded-3xl p-4 border border-white/10 bg-gradient-to-br ${item.color} from-opacity-20 to-opacity-10 shadow-xl shadow-[0_20px_60px_rgba(15,23,42,0.4)]`}>
-                <div className="flex items-center justify-between gap-3">
-                  <div className="rounded-2xl bg-white/10 p-3 text-xl">{item.icon}</div>
-                  <span className="text-xs uppercase tracking-[0.3em] text-slate-200/80">Play</span>
-                </div>
-                <p className="mt-5 text-sm text-slate-200/90 font-semibold">{item.label}</p>
-              </div>
-            ))}
-          </section>
-
-          <section className="rounded-[2rem] border border-white/10 bg-slate-950/90 p-5 shadow-2xl shadow-violet-900/20">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <p className="text-sm text-slate-400 uppercase tracking-[0.3em]">SofCoin Mining</p>
-                <h3 className="mt-3 text-3xl font-black">560.25 SOF</h3>
-              </div>
-              <div className="rounded-3xl bg-white/5 px-4 py-3 text-sm text-slate-200">125.50 MH/s</div>
             </div>
 
-            <div className="mt-5 rounded-3xl border border-white/10 bg-white/5 p-4">
-              <div className="flex items-center justify-between text-sm text-slate-400">
-                <span>Daily Earnings</span>
-                <span className="text-emerald-400 font-semibold">+18.7%</span>
-              </div>
-              <div className="mt-3 flex items-center gap-3 text-xs uppercase tracking-[0.3em] text-slate-300">
-                <ShieldCheck size={16} /> Secure Rewards
-              </div>
-            </div>
-          </section>
-
-          <section className="rounded-[2rem] border border-white/10 bg-slate-950/90 p-5 shadow-2xl shadow-purple-900/15">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-slate-400 uppercase tracking-[0.3em]">Top Coins</p>
-                <h3 className="mt-2 text-2xl font-bold">Market Watch</h3>
-              </div>
-              <div className="text-xs uppercase tracking-[0.3em] text-slate-500">Live</div>
+            <div className="flex flex-col gap-4 sm:flex-row">
+              <Link
+                href={user ? '/dashboard' : '/auth'}
+                className="inline-flex items-center justify-center rounded-3xl bg-gradient-to-r from-purple-600 to-fuchsia-500 px-8 py-4 text-base font-semibold text-white shadow-xl shadow-purple-800/20 transition hover:scale-[1.01]"
+              >
+                <Play size={20} className="mr-3" /> Start Playing
+              </Link>
+              <Link
+                href="#features"
+                className="inline-flex items-center justify-center rounded-3xl border border-white/10 bg-white/5 px-8 py-4 text-base font-semibold text-slate-100 transition hover:bg-white/10"
+              >
+                Explore Features
+                <ChevronRight size={18} className="ml-2" />
+              </Link>
             </div>
 
-            <div className="mt-5 space-y-4">
-              {topCoins.map((coin) => (
-                <div key={coin.symbol} className="flex items-center justify-between rounded-3xl border border-white/10 bg-white/5 p-4">
-                  <div>
-                    <p className="text-sm font-semibold">{coin.name}</p>
-                    <p className="text-xs text-slate-400">{coin.symbol}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-semibold">{coin.value}</p>
-                    <p className={`text-sm ${coin.color}`}>{coin.change}</p>
-                  </div>
+            <div className="grid gap-4 sm:grid-cols-3">
+              {stats.map((item) => (
+                <div key={item.label} className="rounded-3xl border border-white/10 bg-white/5 p-5 text-center">
+                  <p className="text-3xl font-black text-purple-300">{item.value}</p>
+                  <p className="mt-2 text-sm uppercase tracking-[0.25em] text-slate-400">{item.label}</p>
                 </div>
               ))}
             </div>
-          </section>
-        </main>
-      </div>
+          </div>
 
-      <div className="fixed inset-x-0 bottom-0 z-50 border-t border-white/10 bg-slate-950/95 backdrop-blur-xl px-4 py-3">
-        <div className="mx-auto flex max-w-md items-center justify-between text-slate-300">
-          <Link href="#" className="flex flex-col items-center gap-1 text-slate-100">
-            <Home size={24} />
-            <span className="text-[11px] uppercase tracking-[0.23em]">Home</span>
-          </Link>
-          <Link href="#" className="flex flex-col items-center gap-1">
-            <Gamepad2 size={24} />
-            <span className="text-[11px] uppercase tracking-[0.23em]">Games</span>
-          </Link>
-          <Link href="#" className="flex flex-col items-center gap-1">
-            <TrendingUp size={24} />
-            <span className="text-[11px] uppercase tracking-[0.23em]">Bet</span>
-          </Link>
-          <Link href="#" className="flex flex-col items-center gap-1">
-            <WalletIcon size={24} />
-            <span className="text-[11px] uppercase tracking-[0.23em]">Wallet</span>
-          </Link>
-          <Link href="#" className="flex flex-col items-center gap-1">
-            <User size={24} />
-            <span className="text-[11px] uppercase tracking-[0.23em]">Profile</span>
-          </Link>
-        </div>
-      </div>
+          <div className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-br from-slate-900/90 to-purple-950/75 p-10 shadow-2xl shadow-purple-900/25">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(192,132,252,0.18),_transparent_20%),radial-gradient(circle_at_bottom_right,_rgba(236,72,153,0.15),_transparent_25%)]" />
+            <div className="relative space-y-6">
+              <div className="rounded-3xl border border-white/10 bg-white/5 p-5 shadow-inner shadow-black/10">
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <p className="text-sm uppercase tracking-[0.35em] text-slate-400">Live odds</p>
+                    <p className="mt-2 text-2xl font-black">3.5x</p>
+                  </div>
+                  <div className="rounded-3xl bg-purple-700/20 px-3 py-2 text-sm text-purple-100">Sports</div>
+                </div>
+              </div>
+
+              <div className="rounded-3xl border border-white/10 bg-slate-950/90 p-5">
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <p className="text-sm uppercase tracking-[0.35em] text-slate-400">Wallet</p>
+                    <p className="mt-2 text-3xl font-black text-white">₦560.25</p>
+                  </div>
+                  <div className="rounded-3xl bg-emerald-500/10 px-3 py-2 text-sm text-emerald-200">+18.7%</div>
+                </div>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
+                  <p className="text-sm uppercase tracking-[0.3em] text-slate-400">Tournaments</p>
+                  <p className="mt-3 text-2xl font-black">120+</p>
+                </div>
+                <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
+                  <p className="text-sm uppercase tracking-[0.3em] text-slate-400">Mining Rate</p>
+                  <p className="mt-3 text-2xl font-black">125.5 MH/s</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="features" className="mt-20 space-y-8">
+          <div className="max-w-2xl">
+            <p className="text-sm uppercase tracking-[0.35em] text-purple-300">Why choose SofStake</p>
+            <h2 className="mt-3 text-4xl font-black text-white md:text-5xl">Everything you need to win and earn in one platform.</h2>
+          </div>
+
+          <div className="grid gap-6 lg:grid-cols-4">
+            {features.map((feature) => (
+              <div key={feature.title} className="rounded-[1.75rem] border border-white/10 bg-slate-900/90 p-7 shadow-xl shadow-black/20 transition hover:-translate-y-1 hover:border-purple-500/40">
+                <div className="text-4xl">{feature.icon}</div>
+                <h3 className="mt-5 text-xl font-bold text-white">{feature.title}</h3>
+                <p className="mt-3 text-sm leading-6 text-slate-300">{feature.description}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section id="cta" className="mt-20 rounded-[2rem] border border-white/10 bg-gradient-to-r from-purple-950/90 via-slate-900/80 to-fuchsia-950/90 p-10 shadow-2xl shadow-purple-950/30">
+          <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
+            <div className="max-w-2xl">
+              <p className="text-sm uppercase tracking-[0.35em] text-purple-300">Ready to join the winner’s circle?</p>
+              <h2 className="mt-3 text-3xl font-black text-white md:text-4xl">Get started with SofStake and level up your play.</h2>
+            </div>
+            <Link
+              href={user ? '/dashboard' : '/auth'}
+              className="inline-flex items-center justify-center rounded-3xl bg-white px-8 py-4 text-base font-semibold text-slate-950 transition hover:bg-slate-100"
+            >
+              {user ? 'Go to Dashboard' : 'Create Account'}
+            </Link>
+          </div>
+        </section>
+      </main>
     </div>
   );
 }

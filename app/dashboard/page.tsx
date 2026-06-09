@@ -83,9 +83,9 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 space-y-8">
       {/* Hero Section */}
-      <div className="relative rounded-2xl overflow-hidden border border-cyan-500/20">
+      <div className="relative overflow-hidden rounded-[2rem] border border-cyan-500/20 bg-slate-950/80">
         <Image
           src={img1}
           alt="Bet Play Win"
@@ -93,12 +93,12 @@ export default function DashboardPage() {
           height={900}
           className="absolute inset-0 h-full w-full object-cover"
         />
-        <div className="absolute inset-0 bg-slate-950/70" />
-        <div className="relative z-10 p-8 sm:p-10 lg:p-12">
+        <div className="absolute inset-0 bg-slate-950/75" />
+        <div className="relative z-10 p-6 sm:p-8 lg:p-10">
           <div className="mb-6 max-w-3xl">
             <p className="text-sm uppercase tracking-widest text-cyan-400">Bet Play Win</p>
-            <h1 className="text-4xl sm:text-5xl font-bold mt-2">Win Big Everyday</h1>
-            <p className="text-slate-300 mt-3 max-w-2xl text-sm sm:text-base">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mt-2">Win Big Everyday</h1>
+            <p className="text-slate-300 mt-3 max-w-2xl text-sm md:text-base lg:text-lg">
               Stake NGN, match with other players, or fall back to a smart bot if no challenger shows up. Multiple game modes, tournaments, and crypto rewards await!
             </p>
           </div>
@@ -184,7 +184,7 @@ export default function DashboardPage() {
       {/* Betting Images Section */}
       <div>
         <h2 className="text-2xl font-bold mb-6">Featured Betting</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
           {bettingImages.map((item, index) => (
             <div
               key={index}
@@ -256,8 +256,8 @@ export default function DashboardPage() {
       </div>
 
       {/* Tournaments Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1.5fr_0.9fr]">
+        <div>
           <h2 className="text-2xl font-bold mb-6">Active Tournaments</h2>
           <div className="space-y-4">
             {[
