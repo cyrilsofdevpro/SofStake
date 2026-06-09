@@ -226,7 +226,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="fixed inset-x-0 bottom-0 border-t border-white/10 bg-slate-950/95 backdrop-blur-xl py-3">
+      <div className="md:hidden fixed inset-x-0 bottom-0 border-t border-white/10 bg-slate-950/95 backdrop-blur-xl py-3">
         <div className="mx-auto flex max-w-xl items-center justify-between px-5 text-slate-300">
           <button className="flex flex-col items-center gap-1 text-cyan-400">
             <Home size={20} />
