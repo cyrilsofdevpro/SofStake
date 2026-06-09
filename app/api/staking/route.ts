@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
       if (typeof periodDays !== 'number' || ![7, 30, 90].includes(periodDays)) {
         return NextResponse.json({ error: 'periodDays must be one of 7, 30, or 90' }, { status: 400 });
       }
-      if (wallet.sofBalance < amount) {
+      if (Number(wallet.sofBalance ?? 0) < amount) {
         return NextResponse.json({ error: 'Insufficient SofCoin balance', status: 402 }, { status: 402 });
       }
 
@@ -83,6 +83,7 @@ export async function POST(request: NextRequest) {
             type: 'stake_lock',
             amount: -amount,
             currency: 'SOF',
+            balanceBefore: Number(wallet.sofBalance ?? 0),
             balanceAfter: Number(updatedWallet.sofBalance.toFixed(2)),
             source: 'staking',
             reference: `staking_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
@@ -115,7 +116,7 @@ export async function POST(request: NextRequest) {
         });
       });
 
-      return NextResponse.json({ success: true, staking, walletBalance: wallet.sofBalance - amount });
+      return NextResponse.json({ success: true, staking, walletBalance: Number(wallet.sofBalance ?? 0) - amount });
     }
 
     if (action === 'unstake') {
@@ -137,9 +138,9 @@ export async function POST(request: NextRequest) {
       const now = new Date();
       const isMature = now >= stake.endAt;
       const penaltyRate = isMature ? 0 : 0.1;
-      const penaltyAmount = Number((stake.amount * penaltyRate).toFixed(2));
-      const rewardAward = isMature ? stake.reward : 0;
-      const releaseAmount = Number((stake.amount + rewardAward - penaltyAmount).toFixed(2));
+      const penaltyAmount = Number((Number(stake.amount) * penaltyRate).toFixed(2));
+      const rewardAward = isMature ? Number(stake.reward) : 0;
+      const releaseAmount = Number((Number(stake.amount) + rewardAward - penaltyAmount).toFixed(2));
       const status = isMature ? 'completed' : 'cancelled';
 
       await prisma.$transaction(async (tx) => {
@@ -159,7 +160,8 @@ export async function POST(request: NextRequest) {
             type: isMature ? 'stake_release' : 'stake_early_release',
             amount: releaseAmount,
             currency: 'SOF',
-            balanceAfter: Number((wallet.sofBalance + releaseAmount).toFixed(2)),
+            balanceBefore: Number(wallet.sofBalance ?? 0),
+            balanceAfter: Number(wallet.sofBalance ?? 0) + releaseAmount,
             source: 'staking',
             reference: `unstake_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
             metadata: JSON.stringify({ stakeId, penaltyAmount, rewardAward, status }),

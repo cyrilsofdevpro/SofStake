@@ -345,9 +345,12 @@ model AuditLog {
 
 model AnalyticsEvent {
   id        String   @id @default(cuid())
-  eventType String
-  data      Json?
+  event     String
+  userId    String?
+  ip        String?
+  meta      String?
   createdAt DateTime @default(now())
 
   @@index([createdAt])
+  @@index([ip])
 }

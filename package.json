@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "postinstall": "prisma generate",
     "vercel-build": "prisma generate && next build",
     "start": "next start",
@@ -27,6 +27,7 @@
     "typescript": "^5.6.2"
   },
   "devDependencies": {
+    "@prisma/internals": "^7.8.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^20.14.2",

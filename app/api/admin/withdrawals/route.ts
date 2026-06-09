@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
       if (wallet) {
         await prisma.$transaction([
           prisma.wallet.update({ where: { id: wallet.id }, data: { sofBalance: { increment: wr.amountSof } } as any }),
-          prisma.ledgerEntry.create({ data: { walletId: wallet.id, type: 'refund', amount: wr.amountSof, currency: 'SOF', balanceAfter: wallet.sofBalance + wr.amountSof, source: 'withdraw_reject', reference: `refund_${Date.now()}` } }),
+          prisma.ledgerEntry.create({ data: { walletId: wallet.id, type: 'refund', amount: wr.amountSof, currency: 'SOF', balanceBefore: wallet.sofBalance, balanceAfter: wallet.sofBalance.add(wr.amountSof), source: 'withdraw_reject', reference: `refund_${Date.now()}` } }),
         ]);
       }
 

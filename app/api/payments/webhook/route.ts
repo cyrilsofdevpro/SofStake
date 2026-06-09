@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
 
     await prisma.$transaction([
       prisma.wallet.update({ where: { id: wallet.id }, data: { sofBalance: { increment: sof }, usdBalance: { increment: amountUsd } } as any }),
-      prisma.ledgerEntry.create({ data: { walletId: wallet.id, type: 'deposit', amount: sof, currency: 'SOF', balanceAfter: wallet.sofBalance + sof, source: 'card_webhook', reference, metadata: JSON.stringify({ amountUsd }) } }),
+      prisma.ledgerEntry.create({ data: { walletId: wallet.id, type: 'deposit', amount: sof, currency: 'SOF', balanceBefore: Number(wallet.sofBalance ?? 0), balanceAfter: Number(wallet.sofBalance ?? 0) + sof, source: 'card_webhook', reference, metadata: JSON.stringify({ amountUsd }) } }),
       prisma.walletTransaction.create({ data: { userId, type: 'deposit', amount: sof, status: 'completed', reference, metadata: JSON.stringify({ amountUsd }) } }),
     ]);
 

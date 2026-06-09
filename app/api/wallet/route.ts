@@ -53,8 +53,8 @@ export async function POST(request: NextRequest) {
       }
 
       // Update balances and ledger
-      const newSofBalance = wallet.sofBalance + sof;
-      const newUsdBalance = wallet.usdBalance + usd;
+      const newSofBalance = Number(wallet.sofBalance ?? 0) + sof;
+      const newUsdBalance = Number(wallet.usdBalance ?? 0) + usd;
 
       await prisma.$transaction([
         prisma.wallet.update({ where: { id: wallet.id }, data: { sofBalance: newSofBalance, usdBalance: newUsdBalance } }),
@@ -64,6 +64,7 @@ export async function POST(request: NextRequest) {
             type: 'deposit',
             amount: sof,
             currency: 'SOF',
+            balanceBefore: Number(wallet.sofBalance ?? 0),
             balanceAfter: newSofBalance,
             source: 'card',
             reference: `buy_${Date.now()}_${Math.random().toString(36).slice(2,8)}`,
@@ -91,7 +92,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'amountSof required' }, { status: 400 });
       }
 
-      if (wallet.sofBalance < amountSof) {
+      if (Number(wallet.sofBalance ?? 0) < amountSof) {
         return NextResponse.json({ error: 'Insufficient balance' }, { status: 402 });
       }
 
@@ -110,14 +111,15 @@ export async function POST(request: NextRequest) {
 
       // Mark transaction as pending and deduct soft-reserve (optimistic hold)
       await prisma.$transaction([
-        prisma.wallet.update({ where: { id: wallet.id }, data: { sofBalance: wallet.sofBalance - amountSof } }),
+        prisma.wallet.update({ where: { id: wallet.id }, data: { sofBalance: Number(wallet.sofBalance ?? 0) - amountSof } }),
         prisma.ledgerEntry.create({
           data: {
             walletId: wallet.id,
             type: 'withdraw_request',
             amount: -amountSof,
             currency: 'SOF',
-            balanceAfter: wallet.sofBalance - amountSof,
+            balanceBefore: Number(wallet.sofBalance ?? 0),
+            balanceAfter: Number(wallet.sofBalance ?? 0) - amountSof,
             source: 'withdraw_request',
             reference: wr.reference,
           },

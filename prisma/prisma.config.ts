@@ -1,5 +1,5 @@
-import { defineConfig } from '@prisma/internals';
-
-export default defineConfig({
+const config = {
   datasourceUrl: process.env.DATABASE_URL,
-});
+};
+
+export default config;

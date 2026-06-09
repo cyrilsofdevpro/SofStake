@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
     // Enforce weekly cap
     const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
     const recentClaims = await prisma.miningClaim.findMany({ where: { userId, claimedAt: { gte: weekAgo } } });
-    const weeklyTotal = recentClaims.reduce((s, c) => s + (c.amountSof || 0), 0);
+    const weeklyTotal = recentClaims.reduce((s, c) => s + Number(c.amountSof ?? 0), 0);
     if (weeklyTotal >= WEEKLY_CAP) {
       await logEvent('weekly_cap_reached', userId, ip, { weeklyTotal });
       return NextResponse.json({ error: 'Weekly mining cap reached' }, { status: 400 });
@@ -98,7 +98,8 @@ export async function POST(request: NextRequest) {
           type: 'mining',
           amount: reward,
           currency: 'SOF',
-          balanceAfter: (wallet.sofBalance ?? 0) + reward,
+          balanceBefore: Number(wallet.sofBalance ?? 0),
+          balanceAfter: Number(wallet.sofBalance ?? 0) + reward,
           source: 'daily_mining',
           metadata: JSON.stringify({ streak }),
           reference: `mining_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
