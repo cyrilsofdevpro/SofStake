@@ -3,6 +3,7 @@ import './globals.css';
 import { Topbar } from '@/components/site/topbar';
 import { Sidebar } from '@/components/site/sidebar';
 import { Shell } from '@/components/site/Shell';
+import { BottomNav } from '@/components/site/bottom-nav';
 import { Providers } from './providers';
 
 export const metadata: Metadata = {
@@ -17,6 +18,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Providers>
           <Topbar />
           <Sidebar />
+          <BottomNav />
           <Shell>
             <div className="p-6">
               {children}
