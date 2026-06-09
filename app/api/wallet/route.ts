@@ -11,7 +11,10 @@ export async function GET(request: NextRequest) {
     const wallet = await prisma.wallet.findUnique({ where: { userId } });
     if (!wallet) return NextResponse.json({ sofBalance: 0, usdBalance: 0 });
 
-    return NextResponse.json({ sofBalance: wallet.sofBalance, usdBalance: wallet.usdBalance });
+    return NextResponse.json({
+      sofBalance: Number(wallet.sofBalance ?? 0),
+      usdBalance: Number(wallet.usdBalance ?? 0),
+    });
   } catch (e) {
     console.error('GET /api/wallet error', e);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

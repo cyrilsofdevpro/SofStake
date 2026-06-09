@@ -47,6 +47,8 @@ export default function DashboardPage() {
   const router = useRouter();
   const [user, setUser] = useState<StoredUser | null>(null);
   const [sofBalance, setSofBalance] = useState<number | null>(null);
+
+  const formattedSofBalance = typeof sofBalance === 'number' ? sofBalance : Number(sofBalance ?? 0);
   const [stakes, setStakes] = useState<any[]>([]);
   const [loadingStats, setLoadingStats] = useState(false);
   const [selectedTab, setSelectedTab] = useState<string>('Hot');
@@ -126,7 +128,7 @@ export default function DashboardPage() {
                 <div className="grid grid-cols-1 gap-3 w-full sm:grid-cols-2 lg:w-auto">
                   <div className="rounded-3xl border border-white/10 bg-slate-900/80 p-4">
                     <p className="text-xs uppercase tracking-[0.35em] text-slate-400">SOF Balance</p>
-                    <p className="mt-3 text-2xl sm:text-3xl font-black text-cyan-300">{(sofBalance ?? 0).toFixed(2)} SOF</p>
+                    <p className="mt-3 text-2xl sm:text-3xl font-black text-cyan-300">{formattedSofBalance.toFixed(2)} SOF</p>
                   </div>
                   <div className="rounded-3xl border border-white/10 bg-slate-900/80 p-4">
                     <p className="text-xs uppercase tracking-[0.35em] text-slate-400">Mining Status</p>
@@ -169,7 +171,7 @@ export default function DashboardPage() {
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <p className="text-xs sm:text-sm uppercase tracking-[0.35em] text-slate-400">SOFCOIN</p>
-                      <p className="mt-2 text-2xl sm:text-3xl font-black break-words">{(sofBalance ?? 0).toFixed(2)} SOF</p>
+                      <p className="mt-2 text-2xl sm:text-3xl font-black break-words">{formattedSofBalance.toFixed(2)} SOF</p>
                       <p className="text-xs text-slate-400 mt-1">Mining Earnings</p>
                     </div>
                     <div className="rounded-full bg-yellow-400/10 p-2 sm:p-3 text-yellow-300 text-2xl sm:text-3xl drop-shadow-lg flex-shrink-0">🪙</div>
