@@ -248,3 +248,12 @@ model AuditLog {
   @@index([actorId])
   @@index([createdAt])
 }
+
+model AnalyticsEvent {
+  id        String   @id @default(cuid())
+  eventType String
+  data      Json?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
