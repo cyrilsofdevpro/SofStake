@@ -16,6 +16,18 @@ enum TransactionType {
   MINING
   FEE
   ADJUSTMENT
+  // lowercase aliases used throughout codebase
+  deposit
+  withdraw
+  withdraw_request
+  refund
+  mining
+  stake_lock
+  stake_release
+  stake_early_release
+  daily_bonus
+  stake
+  stake_payout
 }
 
 enum TransactionStatus {
@@ -23,6 +35,11 @@ enum TransactionStatus {
   COMPLETED
   FAILED
   REVERSED
+  // lowercase aliases
+  pending
+  completed
+  failed
+  reversed
 }
 
 enum BetStatus {
@@ -45,11 +62,18 @@ model User {
   id           String    @id @default(cuid())
   email        String    @unique
   username     String?   @unique
+  name         String?
+  image        String?
+  password     String?
   passwordHash String
   role         String    @default("user")
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
   lastSeenAt   DateTime?
+  walletBalance Decimal  @default(0) @db.Decimal(30,10)
+  lastBonusClaim DateTime?
+  loginStreak  Int      @default(0)
+  totalBonusEarnings Decimal @default(0) @db.Decimal(30,10)
 
   wallet                Wallet?
   transactions          Transaction[]
@@ -63,6 +87,10 @@ model User {
   auditLogs             AuditLog[]
   sessions              Session[]
   accounts              Account[]
+  walletTransactions    WalletTransaction[]
+  withdrawalRequests    WithdrawalRequest[]
+  miningClaims          MiningClaim[]
+  stakings             Staking[]
 
   @@index([email])
   @@index([createdAt])
@@ -74,6 +102,8 @@ model Wallet {
   userId        String        @unique
   balance       Decimal       @default(0) @db.Decimal(30, 10)
   lockedBalance Decimal       @default(0) @db.Decimal(30, 10)
+  sofBalance    Decimal       @default(0) @db.Decimal(30, 10)
+  usdBalance    Decimal       @default(0) @db.Decimal(30, 10)
   version       Int           @default(0)
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
@@ -90,6 +120,8 @@ model LedgerEntry {
   amount        Decimal           @db.Decimal(30, 10)
   balanceBefore Decimal           @db.Decimal(30, 10)
   balanceAfter  Decimal           @db.Decimal(30, 10)
+  currency      String?
+  source        String?
   reference     String?           @unique
   status        TransactionStatus @default(COMPLETED)
   metadata      Json?
@@ -202,6 +234,68 @@ model ReferralReward {
   transaction   Transaction? @relation("TransactionReferralReward", fields: [transactionId], references: [id])
   transactionId String?      @unique
   createdAt     DateTime     @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model WalletTransaction {
+  id         String   @id @default(cuid())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String
+  type       String
+  amount     Decimal  @db.Decimal(30,10)
+  status     String
+  reference  String?  @unique
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+}
+
+model WithdrawalRequest {
+  id         String   @id @default(cuid())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String
+  amountSof  Decimal  @db.Decimal(30,10)
+  amountUsd  Decimal  @db.Decimal(30,10)
+  status     String
+  reference  String?
+  adminId    String?
+  processedAt DateTime?
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+}
+
+model MiningClaim {
+  id               String   @id @default(cuid())
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId           String
+  amountSof        Decimal  @db.Decimal(30,10)
+  claimedAt        DateTime @default(now())
+  streakDay        Int
+  deviceFingerprint String?
+
+  @@index([userId])
+  @@index([claimedAt])
+}
+
+model Staking {
+  id             String   @id @default(cuid())
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId         String
+  amount         Decimal  @db.Decimal(30,10)
+  periodDays     Int
+  stakePlan      String
+  startAt        DateTime
+  endAt          DateTime
+  reward         Decimal  @db.Decimal(30,10)
+  payoutAmount   Decimal  @db.Decimal(30,10)
+  status         String
+  penaltyApplied Boolean  @default(false)
+  claimedAt      DateTime?
+  createdAt      DateTime @default(now())
 
   @@index([userId])
   @@index([createdAt])
