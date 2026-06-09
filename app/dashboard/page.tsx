@@ -147,33 +147,36 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="mt-5 grid grid-cols-2 gap-3">
+        <div className="mt-5 grid grid-cols-4 gap-3">
           {categories.map((category) => (
-            <div key={category.name} className="rounded-3xl border border-white/10 bg-slate-900/90 p-4 text-center shadow-lg shadow-black/20 transition hover:border-cyan-500/30 hover:bg-slate-900/95">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white/5 text-2xl">{category.icon}</div>
-              <p className="mt-3 text-sm font-semibold text-white">{category.name}</p>
+            <div key={category.name} className="flex flex-col items-center gap-2 p-2">
+              <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-slate-800/80 to-purple-800/60 border border-white/10 flex items-center justify-center text-2xl shadow-sm">
+                {category.icon}
+              </div>
+              <p className="text-xs font-semibold text-slate-200">{category.name}</p>
             </div>
           ))}
         </div>
 
-        <div className="mt-5 rounded-[2rem] border border-white/10 bg-slate-900/95 p-5 shadow-2xl shadow-black/30">
-          <div className="flex items-center justify-between gap-4">
+        <div className="mt-5 rounded-[1.25rem] border border-white/10 bg-gradient-to-br from-slate-900/95 to-purple-950/90 p-4 shadow-2xl shadow-black/40 relative overflow-hidden">
+          <div className="flex items-start justify-between gap-3">
             <div>
-              <p className="text-sm uppercase tracking-[0.35em] text-slate-400">SOFCOIN MINING</p>
-              <p className="mt-3 text-2xl font-black">560.25 SOF</p>
+              <p className="text-xs uppercase tracking-[0.35em] text-slate-400">SOFCOIN MINING</p>
+              <p className="mt-2 text-2xl font-black">560.25 SOF</p>
+              <p className="text-sm text-slate-400 mt-1">Mining Power • 125.50 MH/s</p>
             </div>
-            <div className="rounded-3xl bg-gradient-to-br from-purple-600 to-fuchsia-500 px-4 py-2 text-xs uppercase tracking-[0.25em] text-white">
-              Mining
+            <div className="flex flex-col items-end">
+              <div className="rounded-full bg-yellow-400/10 p-3 text-yellow-300 text-3xl drop-shadow-lg">🪙</div>
             </div>
           </div>
-          <div className="mt-5 grid gap-3 sm:grid-cols-2">
-            <div className="rounded-3xl bg-white/5 p-4">
-              <p className="text-xs uppercase tracking-[0.25em] text-slate-500">Your Mining Earnings</p>
-              <p className="mt-3 text-xl font-semibold text-white">560.25 SOF</p>
+          <div className="mt-4 flex gap-3">
+            <div className="flex-1 rounded-xl bg-white/5 p-3 text-xs">
+              <p className="text-slate-400">Your Mining Earnings</p>
+              <p className="mt-2 font-semibold">560.25 SOF</p>
             </div>
-            <div className="rounded-3xl bg-white/5 p-4">
-              <p className="text-xs uppercase tracking-[0.25em] text-slate-500">Mining Power</p>
-              <p className="mt-3 text-xl font-semibold text-white">125.50 MH/s</p>
+            <div className="rounded-xl bg-white/5 p-3 text-xs">
+              <p className="text-slate-400">Weekly Cap</p>
+              <p className="mt-2 font-semibold">20 SOF</p>
             </div>
           </div>
         </div>
@@ -189,13 +192,13 @@ export default function DashboardPage() {
             </button>
           </div>
 
-          <div className="mt-5 flex gap-2 overflow-x-auto pb-2">
+          <div className="mt-5 flex gap-3 overflow-x-auto pb-2">
             {marketTabs.map((tab) => (
               <button
                 key={tab}
                 onClick={() => setSelectedTab(tab)}
-                className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
-                  selectedTab === tab ? 'bg-cyan-500 text-slate-950' : 'bg-white/5 text-slate-300 hover:bg-white/10'
+                className={`rounded-full px-3 py-2 text-sm font-semibold transition ${
+                  selectedTab === tab ? 'bg-purple-700 text-white' : 'bg-white/5 text-slate-300 hover:bg-white/10'
                 }`}
               >
                 {tab}
@@ -203,21 +206,19 @@ export default function DashboardPage() {
             ))}
           </div>
 
-          <div className="mt-5 space-y-4">
+          <div className="mt-4 space-y-3">
             {topCoins.map((coin) => (
-              <div key={coin.symbol} className="rounded-3xl border border-white/10 bg-slate-950/80 p-4 shadow-inner shadow-black/20">
-                <div className="flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-3xl bg-slate-900 text-xl">{coin.symbol.charAt(0)}</div>
-                    <div>
-                      <p className="font-semibold text-white">{coin.name}</p>
-                      <p className="text-sm text-slate-400">{coin.symbol}</p>
-                    </div>
+              <div key={coin.symbol} className="flex items-center justify-between rounded-lg bg-slate-900/85 p-3">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-full bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center text-sm font-bold">{coin.symbol.charAt(0)}</div>
+                  <div>
+                    <p className="font-semibold text-white">{coin.name}</p>
+                    <p className="text-xs text-slate-400">{coin.symbol}</p>
                   </div>
-                  <div className="text-right">
-                    <p className="text-lg font-bold text-white">{coin.price}</p>
-                    <p className="text-sm font-semibold text-emerald-400">{coin.change}</p>
-                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="font-semibold">{coin.price}</p>
+                  <p className="text-sm text-emerald-400">{coin.change}</p>
                 </div>
               </div>
             ))}

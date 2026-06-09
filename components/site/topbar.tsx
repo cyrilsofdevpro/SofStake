@@ -37,28 +37,20 @@ export function Topbar() {
   const normalizedPath = pathname === '/dashboard' ? '/dashboard' : pathname;
 
   return (
-    <header className="fixed top-0 left-0 right-0 h-20 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 border-b border-white/10 backdrop-blur-xl z-40">
-      <div className="h-full px-4 sm:px-6 flex items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <Link href="/dashboard" className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-500 to-purple-600">
-              <span className="text-white font-bold text-lg">SF</span>
-            </div>
-            <span className="text-lg font-bold text-white hidden sm:inline">SofStake</span>
-          </Link>
-        </div>
+    <>
+      {/* Desktop header */}
+      <header className="hidden md:block fixed top-0 left-0 right-0 h-20 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 border-b border-white/10 backdrop-blur-xl z-40">
+        <div className="h-full px-4 sm:px-6 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <Link href="/dashboard" className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-500 to-purple-600">
+                <span className="text-white font-bold text-lg">SF</span>
+              </div>
+              <span className="text-lg font-bold text-white hidden sm:inline">SofStake</span>
+            </Link>
+          </div>
 
-        <div className="md:hidden">
-          <button
-            aria-label="Open menu"
-            onClick={() => setMobileMenuOpen(true)}
-            className="p-2 rounded-lg hover:bg-white/5 transition-colors text-slate-300 hover:text-white"
-          >
-            <Menu size={20} />
-          </button>
-        </div>
-
-        <nav className="flex-1 overflow-x-auto">
+          <nav className="flex-1 overflow-x-auto">
           <div className="flex min-w-max items-center gap-2 px-2 py-2">
             {topbarItems.map((item) => {
               const isActive = normalizedPath === item.href || pathname.startsWith(item.href);
@@ -108,9 +100,27 @@ export function Topbar() {
           </Link>
         </div>
       </div>
+      </header>
 
+      {/* Mobile header */}
+      <div className="md:hidden fixed top-0 left-0 right-0 h-16 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 border-b border-white/10 backdrop-blur-xl z-40 flex items-center justify-between px-4">
+        <Link href="/dashboard" className="flex items-center gap-2">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-500 to-purple-600">
+            <span className="text-white font-bold text-sm">SF</span>
+          </div>
+        </Link>
+        <button
+          aria-label="Open menu"
+          onClick={() => setMobileMenuOpen(true)}
+          className="p-2 rounded-lg hover:bg-white/5 transition-colors text-slate-300 hover:text-white"
+        >
+          <Menu size={20} />
+        </button>
+      </div>
+
+      {/* Mobile drawer */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 z-50 flex">
+        <div className="md:hidden fixed inset-0 z-50 flex">
           <div className="w-72 bg-gradient-to-b from-slate-950 to-slate-900 border-r border-white/10 p-6 overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
@@ -149,6 +159,13 @@ export function Topbar() {
           />
         </div>
       )}
-    </header>
+    </>
   );
+}
+            onClick={() => setMobileMenuOpen(false)}
+            aria-label="Close menu"
+          />
+        </div>
+      )}
+    </header>
 }

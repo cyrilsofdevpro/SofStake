@@ -7,7 +7,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
   const isLandingPage = pathname === '/';
 
   return (
-    <main className={`${isLandingPage ? 'ml-0 pt-0' : 'ml-0 md:ml-64 pt-20'} min-h-screen transition-all`}>
+    <main className={`${isLandingPage ? 'ml-0 pt-0' : 'ml-0 md:ml-64 pt-16 md:pt-20'} min-h-screen transition-all`}>
       {children}
     </main>
   );
