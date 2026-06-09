@@ -1,32 +1,43 @@
 'use client';
 
-import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getStoredUser, StoredUser } from '@/lib/user';
-import { TrendingUp, Trophy, Users, Target, Zap, TrendingDown } from 'lucide-react';
-import img1 from '@/components/betting image/img1.jpg';
-import img2 from '@/components/betting image/img2.jpg';
-import img3 from '@/components/betting image/img3.jpg';
-import img4 from '@/components/betting image/img4.jpg';
-import img5 from '@/components/betting image/img5.jpg';
+import {
+  Bell,
+  Gamepad2,
+  Home,
+  Sparkles,
+  Trophy,
+  TrendingUp,
+  Users,
+  Wallet,
+  Zap,
+} from 'lucide-react';
 
-const bettingImages = [
-  { src: img1, label: 'Sports Betting' },
-  { src: img2, label: 'Live Casino' },
-  { src: img3, label: 'Crash Games' },
-  { src: img4, label: 'Tournaments' },
-  { src: img5, label: 'Rewards' }
+const categories = [
+  { name: 'Sports', icon: '⚽' },
+  { name: 'Casino', icon: '🎰' },
+  { name: 'Crash', icon: '🚀' },
+  { name: 'Tournaments', icon: '🏆' },
 ];
+
+const topCoins = [
+  { name: 'SOFCOIN', symbol: 'SOF', price: '$0.018', change: '+24.5%' },
+  { name: 'Bitcoin', symbol: 'BTC', price: '$67,890.12', change: '+2.35%' },
+  { name: 'Ethereum', symbol: 'ETH', price: '$3,245.67', change: '+1.85%' },
+];
+
+const marketTabs = ['Hot', 'Gainers', 'New', 'Meme'];
 
 export default function DashboardPage() {
   const router = useRouter();
   const [user, setUser] = useState<StoredUser | null>(null);
   const [sofBalance, setSofBalance] = useState<number | null>(null);
-  const [usdBalance, setUsdBalance] = useState<number | null>(null);
   const [stakes, setStakes] = useState<any[]>([]);
   const [loadingStats, setLoadingStats] = useState(false);
+  const [selectedTab, setSelectedTab] = useState<string>('Hot');
 
   const activeStakes = stakes.filter((stake) => stake.status === 'active');
   const totalStaked = activeStakes.reduce((sum, stake) => sum + (stake.amount || 0), 0);
@@ -55,7 +66,6 @@ export default function DashboardPage() {
       if (walletRes.ok) {
         const walletData = await walletRes.json();
         setSofBalance(walletData.sofBalance ?? 0);
-        setUsdBalance(walletData.usdBalance ?? 0);
       }
     } catch (error) {
       console.error('Failed to load wallet data', error);
@@ -77,276 +87,166 @@ export default function DashboardPage() {
   if (!user) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-cyan-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-cyan-500" />
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 space-y-8">
-      {/* Hero Section */}
-      <div className="relative overflow-hidden rounded-[2rem] border border-cyan-500/20 bg-slate-950/80">
-        <Image
-          src={img1}
-          alt="Bet Play Win"
-          width={1600}
-          height={900}
-          className="absolute inset-0 h-full w-full object-cover"
-        />
-        <div className="absolute inset-0 bg-slate-950/75" />
-        <div className="relative z-10 p-6 sm:p-8 lg:p-10">
-          <div className="mb-6 max-w-3xl">
-            <p className="text-sm uppercase tracking-widest text-cyan-400">Bet Play Win</p>
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mt-2">Win Big Everyday</h1>
-            <p className="text-slate-300 mt-3 max-w-2xl text-sm md:text-base lg:text-lg">
-              Stake NGN, match with other players, or fall back to a smart bot if no challenger shows up. Multiple game modes, tournaments, and crypto rewards await!
-            </p>
+    <div className="min-h-screen bg-slate-950 text-white">
+      <div className="mx-auto max-w-xl px-5 pb-24">
+        <div className="flex items-center justify-between gap-3 py-5">
+          <div className="flex items-center gap-3">
+            <div className="inline-flex h-12 w-12 items-center justify-center rounded-3xl bg-gradient-to-br from-slate-800 to-purple-700 text-base font-black text-white shadow-lg shadow-purple-900/30">
+              SF
+            </div>
+            <div className="hidden gap-2 rounded-full border border-white/10 bg-slate-900/80 px-3 py-2 text-sm text-slate-300 md:flex">
+              <button className="rounded-full bg-cyan-500/15 px-3 py-2 text-cyan-300">Home</button>
+              <button className="rounded-full px-3 py-2 text-slate-300 hover:text-white">Sports</button>
+              <button className="rounded-full px-3 py-2 text-slate-300 hover:text-white">Casino</button>
+            </div>
           </div>
-          <button className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-full font-semibold hover:shadow-lg hover:shadow-cyan-500/50 transition-all text-sm sm:text-base">
-            Play Now
+          <button className="inline-flex h-12 w-12 items-center justify-center rounded-3xl bg-slate-900/90 text-slate-300 transition hover:text-white">
+            <Bell size={20} />
           </button>
         </div>
-      </div>
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="rounded-xl bg-slate-900/50 border border-white/5 p-6 hover:border-cyan-500/30 transition-colors">
+        <div className="rounded-[2rem] border border-white/10 bg-gradient-to-br from-slate-900/95 via-slate-950/95 to-slate-900/95 p-6 shadow-2xl shadow-black/30">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="space-y-3">
+              <div className="inline-flex items-center gap-2 rounded-full bg-white/5 px-4 py-2 text-xs uppercase tracking-[0.25em] text-slate-300">
+                <Sparkles size={16} /> Trending
+              </div>
+              <div>
+                <p className="text-sm uppercase tracking-[0.35em] text-slate-400">Wallet Balance</p>
+                <p className="mt-2 text-4xl font-black">₦{user.walletBalance?.toLocaleString() ?? 0}</p>
+              </div>
+              <p className="text-slate-300 leading-7">
+                Bet. Play. Mine. Win everyday with live games and crypto rewards all in one dashboard.
+              </p>
+            </div>
+            <div className="rounded-3xl border border-white/10 bg-slate-900/80 p-4 text-right">
+              <p className="text-xs uppercase tracking-[0.35em] text-slate-400">USDT Wallet</p>
+              <p className="mt-2 text-3xl font-black text-cyan-300">2,450.50</p>
+            </div>
+          </div>
+
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center justify-center rounded-3xl bg-gradient-to-r from-purple-600 to-fuchsia-500 px-5 py-3 text-sm font-semibold text-white shadow-xl shadow-purple-900/20 transition hover:from-purple-700 hover:to-fuchsia-600"
+            >
+              Play Now
+            </Link>
+            <Link
+              href="/wallet"
+              className="inline-flex items-center justify-center rounded-3xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-slate-200 transition hover:bg-white/10"
+            >
+              Deposit
+            </Link>
+          </div>
+        </div>
+
+        <div className="mt-5 grid grid-cols-2 gap-3">
+          {categories.map((category) => (
+            <div key={category.name} className="rounded-3xl border border-white/10 bg-slate-900/90 p-4 text-center shadow-lg shadow-black/20 transition hover:border-cyan-500/30 hover:bg-slate-900/95">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white/5 text-2xl">{category.icon}</div>
+              <p className="mt-3 text-sm font-semibold text-white">{category.name}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-5 rounded-[2rem] border border-white/10 bg-slate-900/95 p-5 shadow-2xl shadow-black/30">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <p className="text-xs uppercase text-slate-400">Wallet Balance</p>
-              <p className="text-2xl font-bold mt-2">₦{user?.walletBalance?.toLocaleString() ?? 0}</p>
+              <p className="text-sm uppercase tracking-[0.35em] text-slate-400">SOFCOIN MINING</p>
+              <p className="mt-3 text-2xl font-black">560.25 SOF</p>
             </div>
-            <div className="h-10 w-10 rounded-lg bg-cyan-500/10 flex items-center justify-center">
-              💰
+            <div className="rounded-3xl bg-gradient-to-br from-purple-600 to-fuchsia-500 px-4 py-2 text-xs uppercase tracking-[0.25em] text-white">
+              Mining
+            </div>
+          </div>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+            <div className="rounded-3xl bg-white/5 p-4">
+              <p className="text-xs uppercase tracking-[0.25em] text-slate-500">Your Mining Earnings</p>
+              <p className="mt-3 text-xl font-semibold text-white">560.25 SOF</p>
+            </div>
+            <div className="rounded-3xl bg-white/5 p-4">
+              <p className="text-xs uppercase tracking-[0.25em] text-slate-500">Mining Power</p>
+              <p className="mt-3 text-xl font-semibold text-white">125.50 MH/s</p>
             </div>
           </div>
         </div>
 
-        <div className="rounded-xl bg-slate-900/50 border border-white/5 p-6 hover:border-purple-500/30 transition-colors">
-          <div className="flex items-center justify-between">
+        <div className="mt-5 rounded-[2rem] border border-white/10 bg-slate-900/95 p-5 shadow-2xl shadow-black/30">
+          <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="text-xs uppercase text-slate-400">SofCoin Balance</p>
-              <p className="text-2xl font-bold mt-2">{sofBalance !== null ? sofBalance.toLocaleString() : '—'}</p>
+              <p className="text-sm uppercase tracking-[0.35em] text-slate-400">Top Coins</p>
+              <h2 className="mt-2 text-2xl font-bold">Market Watch</h2>
             </div>
-            <div className="h-10 w-10 rounded-lg bg-purple-500/10 flex items-center justify-center">
-              ⛏️
-            </div>
+            <button className="rounded-full bg-white/5 px-4 py-2 text-xs uppercase tracking-[0.25em] text-slate-200 transition hover:bg-white/10">
+              View All
+            </button>
           </div>
-        </div>
 
-        <div className="rounded-xl bg-slate-900/50 border border-white/5 p-6 hover:border-pink-500/30 transition-colors">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs uppercase text-slate-400">Active Stakes</p>
-              <p className="text-2xl font-bold mt-2">{activeStakes.length}</p>
-            </div>
-            <div className="h-10 w-10 rounded-lg bg-pink-500/10 flex items-center justify-center">
-              📊
-            </div>
+          <div className="mt-5 flex gap-2 overflow-x-auto pb-2">
+            {marketTabs.map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setSelectedTab(tab)}
+                className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+                  selectedTab === tab ? 'bg-cyan-500 text-slate-950' : 'bg-white/5 text-slate-300 hover:bg-white/10'
+                }`}
+              >
+                {tab}
+              </button>
+            ))}
           </div>
-        </div>
 
-        <div className="rounded-xl bg-slate-900/50 border border-white/5 p-6 hover:border-blue-500/30 transition-colors">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs uppercase text-slate-400">Mining Streak</p>
-              <p className="text-2xl font-bold mt-2">{user?.loginStreak || 0}</p>
-            </div>
-            <div className="h-10 w-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
-              🔥
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Games Section */}
-      <div>
-        <h2 className="text-2xl font-bold mb-6">Game Categories</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[
-            { name: 'Sports Betting', icon: '🏈', color: 'from-blue-500' },
-            { name: 'Casino', icon: '🎰', color: 'from-purple-500' },
-            { name: 'Crash Games', icon: '📈', color: 'from-pink-500' },
-            { name: 'Tournaments', icon: '🏆', color: 'from-yellow-500' }
-          ].map((game) => (
-            <div
-              key={game.name}
-              className={`rounded-xl bg-gradient-to-br ${game.color}/10 border border-white/10 p-6 cursor-pointer hover:border-cyan-500/50 transition-all hover:shadow-lg hover:shadow-cyan-500/20`}
-            >
-              <div className="text-4xl mb-3">{game.icon}</div>
-              <p className="font-semibold">{game.name}</p>
-              <p className="text-sm text-slate-400 mt-2">Click to explore</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Betting Images Section */}
-      <div>
-        <h2 className="text-2xl font-bold mb-6">Featured Betting</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
-          {bettingImages.map((item, index) => (
-            <div
-              key={index}
-              className="group relative overflow-hidden rounded-3xl border border-white/10 bg-slate-900/70 hover:border-cyan-500/40 hover:shadow-lg hover:shadow-cyan-500/20 transition-all"
-            >
-              <Image
-                src={item.src}
-                alt={item.label}
-                width={400}
-                height={240}
-                sizes="(max-width: 768px) 100vw, 20vw"
-                className="h-48 w-full object-cover transition-transform duration-500 group-hover:scale-105"
-              />
-              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950/90 to-transparent p-4">
-                <p className="text-sm font-semibold text-white">{item.label}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Crypto Market Section */}
-      <div>
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold">Crypto Market</h2>
-          <a href="#" className="text-cyan-400 hover:text-cyan-300 text-sm font-medium">View All →</a>
-        </div>
-        <div className="rounded-xl bg-slate-900/50 border border-white/5 overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-white/5 bg-slate-800/50">
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase text-slate-400">Coin</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase text-slate-400">Price</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase text-slate-400">24h</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase text-slate-400">Market Cap</th>
-                </tr>
-              </thead>
-              <tbody>
-                {[
-                  { name: 'Bitcoin', symbol: 'BTC', price: '$43,200', change: '+2.5%', cap: '$845B' },
-                  { name: 'Ethereum', symbol: 'ETH', price: '$2,300', change: '+1.8%', cap: '$276B' },
-                  { name: 'Solana', symbol: 'SOL', price: '$98.25', change: '+5.2%', cap: '$42.5B' },
-                  { name: 'Dogecoin', symbol: 'DOGE', price: '$0.08', change: '+3.1%', cap: '$12.3B' }
-                ].map((coin) => (
-                  <tr key={coin.symbol} className="border-b border-white/5 hover:bg-white/5 transition-colors">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <span className="w-8 h-8 rounded-full bg-gradient-to-br from-slate-600 to-slate-700 flex items-center justify-center text-xs font-bold">
-                          {coin.symbol.charAt(0)}
-                        </span>
-                        <div>
-                          <p className="font-semibold text-sm">{coin.name}</p>
-                          <p className="text-xs text-slate-400">{coin.symbol}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-sm font-semibold">{coin.price}</td>
-                    <td className="px-6 py-4 text-sm">
-                      <span className="text-green-400 font-semibold">{coin.change}</span>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-slate-300">{coin.cap}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      {/* Tournaments Section */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1.5fr_0.9fr]">
-        <div>
-          <h2 className="text-2xl font-bold mb-6">Active Tournaments</h2>
-          <div className="space-y-4">
-            {[
-              { name: 'Weekend Mega Tournament', prize: '₦1,000,000', participants: 2500, status: 'Live' },
-              { name: 'SofCoin Mining Challenge', prize: '5000 SofCoins', participants: 1800, status: 'Upcoming' },
-              { name: 'Crypto Betting Series', prize: '0.5 BTC', participants: 800, status: 'Live' }
-            ].map((tournament) => (
-              <div key={tournament.name} className="rounded-xl bg-slate-900/50 border border-white/5 p-6 hover:border-cyan-500/30 transition-colors">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-semibold">{tournament.name}</p>
-                    <div className="flex items-center gap-4 mt-2 text-sm text-slate-400">
-                      <span className="flex items-center gap-1"><Trophy size={16} /> Prize: {tournament.prize}</span>
-                      <span className="flex items-center gap-1"><Users size={16} /> {tournament.participants} players</span>
+          <div className="mt-5 space-y-4">
+            {topCoins.map((coin) => (
+              <div key={coin.symbol} className="rounded-3xl border border-white/10 bg-slate-950/80 p-4 shadow-inner shadow-black/20">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-3xl bg-slate-900 text-xl">{coin.symbol.charAt(0)}</div>
+                    <div>
+                      <p className="font-semibold text-white">{coin.name}</p>
+                      <p className="text-sm text-slate-400">{coin.symbol}</p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                      tournament.status === 'Live' ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'
-                    }`}>
-                      {tournament.status}
-                    </span>
+                    <p className="text-lg font-bold text-white">{coin.price}</p>
+                    <p className="text-sm font-semibold text-emerald-400">{coin.change}</p>
                   </div>
                 </div>
               </div>
             ))}
           </div>
         </div>
+      </div>
 
-        {/* Mining & Rewards */}
-        <div>
-          <h2 className="text-2xl font-bold mb-6">SofStake Mining</h2>
-          <div className="space-y-4">
-            <div className="rounded-xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-500/30 p-6">
-              <div className="text-center">
-                <p className="text-sm uppercase text-slate-400 mb-2">Mining claim status</p>
-                <p className="text-3xl font-bold text-purple-400">{claimStatus}</p>
-                <p className="text-xs text-slate-400 mt-1">Last claim: {lastBonusClaim ? lastBonusClaim.toLocaleDateString() : 'none'}</p>
-              </div>
-              <div className="mt-6 pt-6 border-t border-purple-500/20 space-y-3">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-slate-400">Weekly cap</span>
-                  <span className="font-semibold">20 SofCoins</span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-slate-400">Recent streak</span>
-                  <span className="font-semibold text-yellow-400">{user?.loginStreak || 0} days</span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-slate-400">Reward momentum</span>
-                  <span className="font-semibold text-green-400">+2 to +20 SofCoins</span>
-                </div>
-              </div>
-              <Link href="/mining-hub" className="block w-full mt-6 py-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg font-semibold hover:shadow-lg hover:shadow-purple-500/50 transition-all text-sm text-center text-white">
-                Open Mining Hub
-              </Link>
-            </div>
-
-            <div className="rounded-xl border border-white/10 bg-slate-950/80 p-6">
-              <h3 className="text-lg font-semibold mb-4">Staking overview</h3>
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div className="rounded-2xl bg-white/5 p-4 text-sm">
-                  <p className="text-slate-400">Total staked</p>
-                  <p className="mt-2 text-xl font-semibold">{totalStaked.toLocaleString()} SofCoin</p>
-                </div>
-                <div className="rounded-2xl bg-white/5 p-4 text-sm">
-                  <p className="text-slate-400">Active stakes</p>
-                  <p className="mt-2 text-xl font-semibold">{activeStakes.length}</p>
-                </div>
-              </div>
-              <p className="mt-4 text-sm text-slate-300">Your current active stakes are shown here and updated automatically from your staking activity.</p>
-              <Link href="/staking" className="inline-flex items-center justify-center mt-5 rounded-lg bg-cyan-500 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400">
-                Manage Staking
-              </Link>
-            </div>
-
-            {/* Quick Links */}
-            <div className="rounded-xl bg-slate-900/50 border border-white/5 p-4 space-y-2">
-              <Link href="/referrals" className="block p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors text-sm font-medium">
-                → Invite Friends
-              </Link>
-              <Link href="/buy-sofcoin" className="block p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors text-sm font-medium">
-                → Buy SofCoin
-              </Link>
-              <Link href="/wallet" className="block p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors text-sm font-medium">
-                → Deposit Funds
-              </Link>
-            </div>
-          </div>
+      <div className="fixed inset-x-0 bottom-0 border-t border-white/10 bg-slate-950/95 backdrop-blur-xl py-3">
+        <div className="mx-auto flex max-w-xl items-center justify-between px-5 text-slate-300">
+          <button className="flex flex-col items-center gap-1 text-cyan-400">
+            <Home size={20} />
+            <span className="text-[11px]">Home</span>
+          </button>
+          <button className="flex flex-col items-center gap-1">
+            <Gamepad2 size={20} />
+            <span className="text-[11px]">Games</span>
+          </button>
+          <button className="flex flex-col items-center gap-1">
+            <TrendingUp size={20} />
+            <span className="text-[11px]">Bet</span>
+          </button>
+          <button className="flex flex-col items-center gap-1">
+            <Wallet size={20} />
+            <span className="text-[11px]">Wallet</span>
+          </button>
+          <button className="flex flex-col items-center gap-1">
+            <Users size={20} />
+            <span className="text-[11px]">Profile</span>
+          </button>
         </div>
       </div>
     </div>
