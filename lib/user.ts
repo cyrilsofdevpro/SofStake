@@ -252,8 +252,7 @@ export function checkDailyLoginReward(): StoredUser | null {
   return user;
 }
 
-export function updateUserStats(won: boolean, xpGained: number = 10): StoredUser | null {
-  const user = getStoredUser();
+export function updateUserStats(user: StoredUser, won: boolean, xpGained: number = 10): StoredUser | null {
   if (!user) return null;
 
   let newStreak = user.winStreak;

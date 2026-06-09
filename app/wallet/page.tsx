@@ -35,6 +35,28 @@ export default function WalletPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const router = useRouter();
 
+  const formatTransactionMeta = (type: Transaction['type']) => {
+    switch (type) {
+      case 'deposit':
+        return { label: 'Deposit', color: 'bg-emerald-500/10 text-emerald-300', icon: '💳' };
+      case 'withdraw':
+        return { label: 'Withdraw', color: 'bg-red-500/10 text-red-300', icon: '🏧' };
+      case 'win':
+        return { label: 'Win', color: 'bg-green-500/10 text-green-300', icon: '🎉' };
+      case 'loss':
+        return { label: 'Loss', color: 'bg-rose-500/10 text-rose-300', icon: '📉' };
+      case 'bonus':
+      case 'daily_bonus':
+      case 'streak_bonus':
+      case 'referral_bonus':
+        return { label: 'Bonus', color: 'bg-sky-500/10 text-sky-300', icon: '✨' };
+      case 'fee':
+        return { label: 'Fee', color: 'bg-orange-500/10 text-orange-300', icon: '⚡' };
+      default:
+        return { label: 'Activity', color: 'bg-white/5 text-slate-300', icon: 'ℹ️' };
+    }
+  };
+
   useEffect(() => {
     const storedUser = getStoredUser();
     setUser(storedUser);
@@ -184,14 +206,14 @@ export default function WalletPage() {
                   Paystack public key is missing. Add `NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY` to your `.env.local` and restart the app.
                 </div>
               ) : null}
-              <div className="mt-10 grid gap-6 lg:grid-cols-[1.3fr_0.9fr]">
+              <div className="mt-10 grid gap-6 xl:grid-cols-[1.3fr_0.9fr]">
                 <section className="rounded-3xl border border-white/10 bg-slate-950/80 p-6">
                   <div className="space-y-4">
                     <div className="rounded-3xl bg-white/5 p-4">
                       <p className="text-sm uppercase tracking-[0.25em] text-slate-400">Current balance</p>
                       <p className="mt-2 text-3xl font-semibold text-white">₦{walletBalance.toLocaleString()}</p>
                     </div>
-                    <div className="grid gap-4 md:grid-cols-[1fr_auto]">
+                    <div className="grid gap-4 sm:grid-cols-[1fr_auto]">
                       <label className="grid gap-2">
                         <span className="text-sm uppercase tracking-[0.25em] text-slate-400">Deposit amount</span>
                         <input
@@ -216,23 +238,41 @@ export default function WalletPage() {
                     ) : null}
                   </div>
                 </section>
+
                 <aside className="rounded-3xl border border-white/10 bg-slate-950/80 p-6">
-                  <p className="text-sm uppercase tracking-[0.25em] text-slate-400">Recent activity</p>
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <p className="text-sm uppercase tracking-[0.25em] text-slate-400">Recent activity</p>
+                    <span className="text-xs uppercase tracking-[0.2em] text-slate-500">Last 10 transactions</span>
+                  </div>
                   <div className="mt-5 space-y-4">
                     {transactions.length > 0 ? (
-                      transactions.map((transaction) => (
-                        <div key={transaction.id} className="rounded-3xl bg-black/30 p-4 text-sm text-slate-200">
-                          <div className="flex items-center justify-between gap-4">
-                            <span>{transaction.description}</span>
-                            <span className="rounded-full bg-white/5 px-3 py-1 text-[11px] uppercase tracking-[0.2em] text-slate-300">
-                              {transaction.status || 'completed'}
-                            </span>
+                      transactions.map((transaction) => {
+                        const meta = formatTransactionMeta(transaction.type);
+                        return (
+                          <div key={transaction.id} className="rounded-3xl bg-black/30 p-4 text-sm text-slate-200">
+                            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                              <div className="flex items-center gap-3">
+                                <span className={`inline-flex h-9 w-9 items-center justify-center rounded-2xl ${meta.color}`}>
+                                  {meta.icon}
+                                </span>
+                                <div>
+                                  <p className="font-semibold text-white">{transaction.description}</p>
+                                  <p className="text-xs text-slate-400 uppercase tracking-[0.2em]">{meta.label}</p>
+                                </div>
+                              </div>
+                              <div className="flex flex-col items-end gap-2 text-right">
+                                <span className="rounded-full bg-white/5 px-3 py-1 text-[11px] uppercase tracking-[0.2em] text-slate-300">
+                                  {transaction.status || 'completed'}
+                                </span>
+                                <span className="font-semibold text-white">₦{transaction.amount.toLocaleString()}</span>
+                              </div>
+                            </div>
+                            <div className="mt-3 text-xs text-slate-400">
+                              {new Date(transaction.timestamp).toLocaleString()} • Balance ₦{transaction.balance.toLocaleString()}
+                            </div>
                           </div>
-                          <div className="mt-2 text-xs text-slate-400">
-                            {new Date(transaction.timestamp).toLocaleString()} • Balance ₦{transaction.balance.toLocaleString()}
-                          </div>
-                        </div>
-                      ))
+                        );
+                      })
                     ) : (
                       ['No activity yet', 'Your wallet starts at ₦0', 'Deposit to start playing'].map((item) => (
                         <div key={item} className="rounded-3xl bg-black/30 p-4 text-sm text-slate-200">
@@ -242,15 +282,17 @@ export default function WalletPage() {
                     )}
                   </div>
                 </aside>
-                {confirmation ? (
-                  <div className="mt-6 rounded-3xl border border-emerald-400/20 bg-emerald-500/10 p-4 text-sm text-emerald-200">
-                    <p className="font-semibold">Payment confirmed</p>
-                    <p>Reference: {confirmation.reference}</p>
-                    <p>Amount: ₦{confirmation.amount.toLocaleString()}</p>
-                    <p>Status: {confirmation.status}</p>
-                  </div>
-                ) : null}
               </div>
+
+              {confirmation ? (
+                <div className="mt-6 rounded-3xl border border-emerald-400/20 bg-emerald-500/10 p-4 text-sm text-emerald-200">
+                  <p className="font-semibold">Payment confirmed</p>
+                  <p>Reference: {confirmation.reference}</p>
+                  <p>Amount: ₦{confirmation.amount.toLocaleString()}</p>
+                  <p>Status: {confirmation.status}</p>
+                </div>
+              ) : null}
+            </>
             </>
           )}
         </div>

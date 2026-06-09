@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getStoredUser, saveStoredUser, updateUserStats, StoredUser, getFriends } from '@/lib/user';
+import { addTransaction, getStoredUser, updateUserStats, StoredUser, getFriends } from '@/lib/user';
 
 type GameType = 'dice' | 'wheel';
 
@@ -67,9 +67,10 @@ export default function GamePage() {
     setTimeout(() => {
       setState('ready');
       setMessage(`Match found against ${matchOpponent}! Ready to ${gameType === 'dice' ? 'roll' : 'spin'}.`);
-      const updatedUser = { ...user, walletBalance: user.walletBalance - stake };
-      setUser(updatedUser);
-      saveStoredUser(updatedUser);
+      const stakeUser = addTransaction('loss', -stake, `${gameLabel} stake deducted`);
+      if (stakeUser) {
+        setUser(stakeUser);
+      }
     }, 1400);
   };
 
@@ -89,23 +90,28 @@ export default function GamePage() {
 
     if (playerValue === opponentValue) {
       outcomeMessage = `Tie! ${gameLabel} ended in a draw. Your stake was refunded.`;
-      updatedUser.walletBalance += stake;
+      const refundUser = addTransaction('deposit', stake, `${gameLabel} stake returned after tie`);
+      if (refundUser) {
+        updatedUser = refundUser;
+      }
     } else if (playerValue > opponentValue) {
       outcomeMessage = `You won! ${gameLabel} payout ₦${payout.toLocaleString()} delivered.`;
-      updatedUser.walletBalance += payout;
+      const winUser = addTransaction('win', payout, `Won ${gameLabel} payout`);
+      if (winUser) {
+        updatedUser = winUser;
+      }
       won = true;
     } else {
-      outcomeMessage = `You lost this round. Better luck next time.`;
+      outcomeMessage = `You lost ₦${stake.toLocaleString()} in this round. Better luck next time.`;
     }
 
-    // Update user stats
-    const statsUpdatedUser = updateUserStats(won);
+    // Update user stats with preserved wallet balance
+    const statsUpdatedUser = updateUserStats(updatedUser, won);
     if (statsUpdatedUser) {
-      updatedUser = { ...updatedUser, ...statsUpdatedUser };
+      updatedUser = statsUpdatedUser;
     }
 
     setUser(updatedUser);
-    saveStoredUser(updatedUser);
     setState('completed');
     setMessage(outcomeMessage);
   };
