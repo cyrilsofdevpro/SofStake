@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check password
-    const isPasswordValid = await bcrypt.compare(password, user.password || '');
+    const isPasswordValid = await bcrypt.compare(password, user.passwordHash || '');
 
     if (!isPasswordValid) {
       return NextResponse.json(
@@ -65,11 +65,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const username = user.username ?? user.email;
+
     // Generate token
     const token = generateToken({
       id: user.id,
       email: user.email,
-      username: user.username,
+      username,
     });
 
     // Create response
@@ -79,7 +81,7 @@ export async function POST(request: NextRequest) {
         user: {
           id: user.id,
           email: user.email,
-          username: user.username,
+          username,
           name: user.name,
           image: user.image,
         },

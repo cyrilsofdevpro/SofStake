@@ -74,18 +74,19 @@ export async function POST(request: NextRequest) {
     const user = await prisma.user.create({
       data: {
         email,
-        password: hashedPassword,
+        passwordHash: hashedPassword,
         username,
         name,
-        emailVerified: new Date(),
       },
     });
+
+    const savedUsername = user.username ?? username;
 
     // Generate token
     const token = generateToken({
       id: user.id,
       email: user.email,
-      username: user.username,
+      username: savedUsername,
     });
 
     // Create response
@@ -95,7 +96,7 @@ export async function POST(request: NextRequest) {
         user: {
           id: user.id,
           email: user.email,
-          username: user.username,
+          username: savedUsername,
           name: user.name,
         },
       },
