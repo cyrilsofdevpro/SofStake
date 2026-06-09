@@ -30,6 +30,7 @@ export default function WalletPage() {
   const [depositAmount, setDepositAmount] = useState(500);
   const [isProcessing, setIsProcessing] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
+  const [authorizationUrl, setAuthorizationUrl] = useState<string | null>(null);
   const [confirmation, setConfirmation] = useState<{ reference: string; amount: number; status: string } | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const router = useRouter();
@@ -67,10 +68,11 @@ export default function WalletPage() {
         throw new Error(data.message || data.error || 'Paystack initialization failed');
       }
 
+      const authorizationUrl = data.data?.authorization_url || null;
+      setAuthorizationUrl(authorizationUrl);
+
       const paystack = await loadPaystackScript();
-      if (!paystack || typeof paystack.setup !== 'function') {
-        throw new Error('Could not load Paystack checkout. Please refresh and try again.');
-      }
+      const canOpenInline = paystack && typeof paystack.setup === 'function';
 
       if (!process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY) {
         throw new Error('Missing Paystack public key');
@@ -119,21 +121,38 @@ export default function WalletPage() {
         void verifyPayment(reference);
       };
 
-      const handler = paystack.setup({
-        key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY,
-        email: user.email,
-        amount: amount * 100,
-        currency: 'NGN',
-        ref: data.data.reference,
-        metadata: {
-          userId: user.id,
-          email: user.email
-        },
-        onClose,
-        callback
-      });
+      let openedInline = false;
+      if (canOpenInline && paystack) {
+        const handler = paystack.setup({
+          key: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY,
+          email: user.email,
+          amount: amount * 100,
+          currency: 'NGN',
+          ref: data.data.reference,
+          metadata: {
+            userId: user.id,
+            email: user.email
+          },
+          onClose,
+          callback
+        });
 
-      handler.openIframe();
+        try {
+          handler.openIframe();
+          openedInline = true;
+        } catch (inlineError) {
+          console.warn('Paystack inline checkout failed', inlineError);
+        }
+      }
+
+      if (!openedInline) {
+        if (authorizationUrl) {
+          setStatusMessage('Redirecting to Paystack checkout...');
+          window.location.href = authorizationUrl;
+          return;
+        }
+        throw new Error('Could not open Paystack checkout. Please refresh and try again.');
+      }
     } catch (error: any) {
       setStatusMessage(error?.message || 'Unable to start Paystack deposit.');
       setIsProcessing(false);

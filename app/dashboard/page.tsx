@@ -135,7 +135,7 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              <div className="mt-4 sm:mt-6 flex flex-col gap-2 sm:gap-3 sm:flex-row">
+              <div className="mt-4 sm:mt-6 flex flex-wrap gap-2">
                 <Link
                   href="/dashboard"
                   className="inline-flex items-center justify-center rounded-3xl bg-gradient-to-r from-purple-600 to-fuchsia-500 px-4 sm:px-5 py-2 sm:py-3 text-xs sm:text-sm font-semibold text-white shadow-xl shadow-purple-900/20 transition hover:from-purple-700 hover:to-fuchsia-600"
@@ -147,6 +147,18 @@ export default function DashboardPage() {
                   className="inline-flex items-center justify-center rounded-3xl border border-white/10 bg-white/5 px-4 sm:px-5 py-2 sm:py-3 text-xs sm:text-sm font-semibold text-slate-200 transition hover:bg-white/10"
                 >
                   Deposit
+                </Link>
+                <Link
+                  href="/buy-sofcoin"
+                  className="inline-flex items-center justify-center rounded-3xl border border-white/10 bg-cyan-600/10 px-4 sm:px-5 py-2 sm:py-3 text-xs sm:text-sm font-semibold text-cyan-200 transition hover:bg-cyan-600/20"
+                >
+                  Buy SofCoin
+                </Link>
+                <Link
+                  href="/mining-hub"
+                  className="inline-flex items-center justify-center rounded-3xl border border-white/10 bg-emerald-600/10 px-4 sm:px-5 py-2 sm:py-3 text-xs sm:text-sm font-semibold text-emerald-200 transition hover:bg-emerald-600/20"
+                >
+                  Claim SofCoin
                 </Link>
               </div>
             </section>
