@@ -31,6 +31,18 @@ const topCoins = [
 
 const marketTabs = ['Hot', 'Gainers', 'New', 'Meme'];
 
+const marketAlerts = [
+  { title: 'New Meme Coin $PEPEKING', subtitle: 'Launched 2m ago', status: 'Live' },
+  { title: 'Bitcoin Price Increased', subtitle: 'BTC is up by 2.35%', status: 'Alert' },
+  { title: 'SofCoin Price Increased', subtitle: 'SOF is up by 24.5%', status: 'Trending' },
+];
+
+const topPlayers = [
+  { name: 'CryptoKing', score: '12,450 SOF' },
+  { name: 'BetMaster', score: '9,860 SOF' },
+  { name: 'CoinHunter', score: '7,540 SOF' },
+];
+
 export default function DashboardPage() {
   const router = useRouter();
   const [user, setUser] = useState<StoredUser | null>(null);
@@ -94,135 +106,202 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-white">
-      <div className="mx-auto max-w-xl px-5 pb-24">
-        <div className="flex items-center justify-between gap-3 py-5">
-          <div className="flex items-center gap-3">
-            <div className="inline-flex h-12 w-12 items-center justify-center rounded-3xl bg-gradient-to-br from-slate-800 to-purple-700 text-base font-black text-white shadow-lg shadow-purple-900/30">
-              SF
-            </div>
-            <div className="hidden gap-2 rounded-full border border-white/10 bg-slate-900/80 px-3 py-2 text-sm text-slate-300 md:flex">
-              <button className="rounded-full bg-cyan-500/15 px-3 py-2 text-cyan-300">Home</button>
-              <button className="rounded-full px-3 py-2 text-slate-300 hover:text-white">Sports</button>
-              <button className="rounded-full px-3 py-2 text-slate-300 hover:text-white">Casino</button>
-            </div>
-          </div>
-          <button className="inline-flex h-12 w-12 items-center justify-center rounded-3xl bg-slate-900/90 text-slate-300 transition hover:text-white">
-            <Bell size={20} />
-          </button>
-        </div>
-
-        <div className="rounded-[2rem] border border-white/10 bg-gradient-to-br from-slate-900/95 via-slate-950/95 to-slate-900/95 p-6 shadow-2xl shadow-black/30">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            <div className="space-y-3">
-              <div className="inline-flex items-center gap-2 rounded-full bg-white/5 px-4 py-2 text-xs uppercase tracking-[0.25em] text-slate-300">
-                <Sparkles size={16} /> Trending
-              </div>
-              <div>
-                <p className="text-sm uppercase tracking-[0.35em] text-slate-400">Wallet Balance</p>
-                <p className="mt-2 text-4xl font-black">₦{user.walletBalance?.toLocaleString() ?? 0}</p>
-              </div>
-              <p className="text-slate-300 leading-7">
-                Bet. Play. Mine. Win everyday with live games and crypto rewards all in one dashboard.
-              </p>
-            </div>
-            <div className="rounded-3xl border border-white/10 bg-slate-900/80 p-4 text-right">
-              <p className="text-xs uppercase tracking-[0.35em] text-slate-400">USDT Wallet</p>
-              <p className="mt-2 text-3xl font-black text-cyan-300">2,450.50</p>
-            </div>
-          </div>
-
-          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-            <Link
-              href="/dashboard"
-              className="inline-flex items-center justify-center rounded-3xl bg-gradient-to-r from-purple-600 to-fuchsia-500 px-5 py-3 text-sm font-semibold text-white shadow-xl shadow-purple-900/20 transition hover:from-purple-700 hover:to-fuchsia-600"
-            >
-              Play Now
-            </Link>
-            <Link
-              href="/wallet"
-              className="inline-flex items-center justify-center rounded-3xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-slate-200 transition hover:bg-white/10"
-            >
-              Deposit
-            </Link>
-          </div>
-        </div>
-
-        <div className="mt-5 grid grid-cols-4 gap-3">
-          {categories.map((category) => (
-            <div key={category.name} className="flex flex-col items-center gap-2 p-2">
-              <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-slate-800/80 to-purple-800/60 border border-white/10 flex items-center justify-center text-2xl shadow-sm">
-                {category.icon}
-              </div>
-              <p className="text-xs font-semibold text-slate-200">{category.name}</p>
-            </div>
-          ))}
-        </div>
-
-        <div className="mt-5 rounded-[1.25rem] border border-white/10 bg-gradient-to-br from-slate-900/95 to-purple-950/90 p-4 shadow-2xl shadow-black/40 relative overflow-hidden">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <p className="text-xs uppercase tracking-[0.35em] text-slate-400">SOFCOIN MINING</p>
-              <p className="mt-2 text-2xl font-black">560.25 SOF</p>
-              <p className="text-sm text-slate-400 mt-1">Mining Power • 125.50 MH/s</p>
-            </div>
-            <div className="flex flex-col items-end">
-              <div className="rounded-full bg-yellow-400/10 p-3 text-yellow-300 text-3xl drop-shadow-lg">🪙</div>
-            </div>
-          </div>
-          <div className="mt-4 flex gap-3">
-            <div className="flex-1 rounded-xl bg-white/5 p-3 text-xs">
-              <p className="text-slate-400">Your Mining Earnings</p>
-              <p className="mt-2 font-semibold">560.25 SOF</p>
-            </div>
-            <div className="rounded-xl bg-white/5 p-3 text-xs">
-              <p className="text-slate-400">Weekly Cap</p>
-              <p className="mt-2 font-semibold">20 SOF</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-5 rounded-[2rem] border border-white/10 bg-slate-900/95 p-5 shadow-2xl shadow-black/30">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <p className="text-sm uppercase tracking-[0.35em] text-slate-400">Top Coins</p>
-              <h2 className="mt-2 text-2xl font-bold">Market Watch</h2>
-            </div>
-            <button className="rounded-full bg-white/5 px-4 py-2 text-xs uppercase tracking-[0.25em] text-slate-200 transition hover:bg-white/10">
-              View All
-            </button>
-          </div>
-
-          <div className="mt-5 flex gap-3 overflow-x-auto pb-2">
-            {marketTabs.map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setSelectedTab(tab)}
-                className={`rounded-full px-3 py-2 text-sm font-semibold transition ${
-                  selectedTab === tab ? 'bg-purple-700 text-white' : 'bg-white/5 text-slate-300 hover:bg-white/10'
-                }`}
-              >
-                {tab}
-              </button>
-            ))}
-          </div>
-
-          <div className="mt-4 space-y-3">
-            {topCoins.map((coin) => (
-              <div key={coin.symbol} className="flex items-center justify-between rounded-lg bg-slate-900/85 p-3">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center text-sm font-bold">{coin.symbol.charAt(0)}</div>
+      <div className="mx-auto max-w-7xl px-4 pb-28 pt-6 md:px-6 lg:px-8">
+        <div className="grid gap-6 xl:grid-cols-[1.9fr_1fr]">
+          <main className="space-y-6">
+            <section className="rounded-[2rem] border border-white/10 bg-gradient-to-br from-slate-900/95 via-slate-950/95 to-slate-900/95 p-6 shadow-2xl shadow-black/30">
+              <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
+                <div className="space-y-4">
+                  <div className="inline-flex items-center gap-2 rounded-full bg-white/5 px-4 py-2 text-xs uppercase tracking-[0.25em] text-slate-300">
+                    <Sparkles size={16} /> Trending
+                  </div>
                   <div>
-                    <p className="font-semibold text-white">{coin.name}</p>
-                    <p className="text-xs text-slate-400">{coin.symbol}</p>
+                    <p className="text-sm uppercase tracking-[0.35em] text-slate-400">Wallet Balance</p>
+                    <p className="mt-2 text-5xl font-black xl:text-6xl">₦{user.walletBalance?.toLocaleString() ?? 0}</p>
+                  </div>
+                  <p className="max-w-2xl text-slate-300 leading-7">
+                    Bet. Play. Mine. Win everyday with live games, crypto rewards, and the fastest social betting experience.
+                  </p>
+                </div>
+                <div className="grid gap-4 sm:grid-cols-2 xl:w-[380px]">
+                  <div className="rounded-3xl border border-white/10 bg-slate-900/80 p-5">
+                    <p className="text-xs uppercase tracking-[0.35em] text-slate-400">USDT Wallet</p>
+                    <p className="mt-3 text-3xl font-black text-cyan-300">2,450.50</p>
+                  </div>
+                  <div className="rounded-3xl border border-white/10 bg-slate-900/80 p-5">
+                    <p className="text-xs uppercase tracking-[0.35em] text-slate-400">Mining Earnings</p>
+                    <p className="mt-3 text-3xl font-black text-amber-300">560.25 SOF</p>
                   </div>
                 </div>
-                <div className="text-right">
-                  <p className="font-semibold">{coin.price}</p>
-                  <p className="text-sm text-emerald-400">{coin.change}</p>
+              </div>
+
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                <Link
+                  href="/dashboard"
+                  className="inline-flex items-center justify-center rounded-3xl bg-gradient-to-r from-purple-600 to-fuchsia-500 px-5 py-3 text-sm font-semibold text-white shadow-xl shadow-purple-900/20 transition hover:from-purple-700 hover:to-fuchsia-600"
+                >
+                  Play Now
+                </Link>
+                <Link
+                  href="/wallet"
+                  className="inline-flex items-center justify-center rounded-3xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-slate-200 transition hover:bg-white/10"
+                >
+                  Deposit
+                </Link>
+              </div>
+            </section>
+
+            <section className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
+              <div className="rounded-[2rem] border border-white/10 bg-slate-900/95 p-5 shadow-2xl shadow-black/30">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <p className="text-sm uppercase tracking-[0.35em] text-slate-400">SOFCOIN MINING</p>
+                    <p className="mt-2 text-3xl font-black">560.25 SOF</p>
+                    <p className="text-sm text-slate-400 mt-1">Mining Power • 125.50 MH/s</p>
+                  </div>
+                  <div className="rounded-full bg-yellow-400/10 p-4 text-yellow-300 text-3xl drop-shadow-lg">🪙</div>
+                </div>
+                <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                  <div className="rounded-3xl bg-white/5 p-4 text-xs">
+                    <p className="text-slate-400">Your Mining Earnings</p>
+                    <p className="mt-2 text-lg font-semibold text-white">560.25 SOF</p>
+                  </div>
+                  <div className="rounded-3xl bg-white/5 p-4 text-xs">
+                    <p className="text-slate-400">Weekly Cap</p>
+                    <p className="mt-2 text-lg font-semibold text-white">20 SOF</p>
+                  </div>
                 </div>
               </div>
-            ))}
-          </div>
+              <div className="rounded-[2rem] border border-white/10 bg-slate-900/95 p-5 shadow-2xl shadow-black/30">
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <p className="text-sm uppercase tracking-[0.35em] text-slate-400">Dashboard</p>
+                    <h2 className="mt-2 text-2xl font-bold">Total Staked</h2>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm text-slate-400">Active stakes</p>
+                    <p className="mt-2 text-3xl font-black">{totalStaked.toLocaleString()}</p>
+                  </div>
+                </div>
+                <div className="mt-5 space-y-3">
+                  <div className="rounded-3xl bg-white/5 p-4">
+                    <p className="text-sm text-slate-300">Current Reward Status</p>
+                    <p className="mt-2 font-semibold text-white">{claimStatus}</p>
+                  </div>
+                  <div className="rounded-3xl bg-white/5 p-4">
+                    <p className="text-sm text-slate-300">Wallet Funds</p>
+                    <p className="mt-2 font-semibold text-white">₦{user.walletBalance?.toLocaleString() ?? 0}</p>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section className="rounded-[2rem] border border-white/10 bg-slate-900/95 p-5 shadow-2xl shadow-black/30">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-sm uppercase tracking-[0.35em] text-slate-400">Top Coins</p>
+                  <h2 className="mt-2 text-2xl font-bold">Market Watch</h2>
+                </div>
+                <button className="rounded-full bg-white/5 px-4 py-2 text-xs uppercase tracking-[0.25em] text-slate-200 transition hover:bg-white/10">
+                  View All
+                </button>
+              </div>
+              <div className="mt-5 flex gap-3 overflow-x-auto pb-2">
+                {marketTabs.map((tab) => (
+                  <button
+                    key={tab}
+                    onClick={() => setSelectedTab(tab)}
+                    className={`rounded-full px-3 py-2 text-sm font-semibold transition ${
+                      selectedTab === tab ? 'bg-purple-700 text-white' : 'bg-white/5 text-slate-300 hover:bg-white/10'
+                    }`}
+                  >
+                    {tab}
+                  </button>
+                ))}
+              </div>
+              <div className="mt-4 space-y-3">
+                {topCoins.map((coin) => (
+                  <div key={coin.symbol} className="flex items-center justify-between rounded-3xl bg-slate-950/80 p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="h-12 w-12 rounded-full bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center text-sm font-bold">{coin.symbol.charAt(0)}</div>
+                      <div>
+                        <p className="font-semibold text-white">{coin.name}</p>
+                        <p className="text-xs text-slate-400">{coin.symbol}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-semibold">{coin.price}</p>
+                      <p className="text-sm text-emerald-400">{coin.change}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          </main>
+
+          <aside className="hidden xl:block space-y-6">
+            <div className="rounded-[2rem] border border-white/10 bg-slate-900/95 p-5 shadow-2xl shadow-black/30">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-sm uppercase tracking-[0.35em] text-slate-400">Quick Stats</p>
+                  <h2 className="mt-2 text-2xl font-bold">Activity</h2>
+                </div>
+                <div className="rounded-full bg-cyan-500/10 p-3 text-cyan-300">
+                  <Zap size={20} />
+                </div>
+              </div>
+              <div className="mt-5 space-y-4">
+                <div className="rounded-3xl bg-white/5 p-4">
+                  <p className="text-xs uppercase tracking-[0.35em] text-slate-400">Current Users</p>
+                  <p className="mt-2 text-xl font-semibold text-white">{topPlayers.length * 1320}</p>
+                </div>
+                <div className="rounded-3xl bg-white/5 p-4">
+                  <p className="text-xs uppercase tracking-[0.35em] text-slate-400">Claim Status</p>
+                  <p className="mt-2 text-xl font-semibold text-white">{claimStatus}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-[2rem] border border-white/10 bg-slate-900/95 p-5 shadow-2xl shadow-black/30">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-sm uppercase tracking-[0.35em] text-slate-400">Market Alerts</p>
+                  <h2 className="mt-2 text-2xl font-bold">Live Feed</h2>
+                </div>
+              </div>
+              <div className="mt-5 space-y-3">
+                {marketAlerts.map((alert) => (
+                  <div key={alert.title} className="rounded-3xl bg-slate-950/80 p-4">
+                    <p className="text-sm font-semibold text-white">{alert.title}</p>
+                    <p className="mt-1 text-xs text-slate-400">{alert.subtitle}</p>
+                    <span className="mt-3 inline-flex rounded-full bg-white/5 px-3 py-1 text-[11px] uppercase tracking-[0.24em] text-slate-300">
+                      {alert.status}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-[2rem] border border-white/10 bg-slate-900/95 p-5 shadow-2xl shadow-black/30">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-sm uppercase tracking-[0.35em] text-slate-400">Top Players</p>
+                  <h2 className="mt-2 text-2xl font-bold">Leaderboards</h2>
+                </div>
+              </div>
+              <div className="mt-5 space-y-3">
+                {topPlayers.map((player) => (
+                  <div key={player.name} className="flex items-center justify-between rounded-3xl bg-slate-950/80 p-4">
+                    <div>
+                      <p className="font-semibold text-white">{player.name}</p>
+                      <p className="text-xs text-slate-400">Top trader</p>
+                    </div>
+                    <p className="text-sm font-semibold text-cyan-300">{player.score}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </aside>
         </div>
       </div>
 
