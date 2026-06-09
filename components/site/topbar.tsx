@@ -162,10 +162,3 @@ export function Topbar() {
     </>
   );
 }
-            onClick={() => setMobileMenuOpen(false)}
-            aria-label="Close menu"
-          />
-        </div>
-      )}
-    </header>
-}
