@@ -5,13 +5,6 @@ import bcrypt from 'bcryptjs';
 import { generateToken, AUTH_COOKIE_NAME, AUTH_COOKIE_OPTIONS } from '@/lib/auth';
 
 function getRegisterErrorResponse(error: unknown) {
-  if (!process.env.DATABASE_URL) {
-    return NextResponse.json(
-      { error: 'Database unavailable. Please try again later.' },
-      { status: 503 }
-    );
-  }
-
   if (
     error instanceof Prisma.PrismaClientInitializationError ||
     error instanceof Prisma.PrismaClientKnownRequestError ||
@@ -25,11 +18,7 @@ function getRegisterErrorResponse(error: unknown) {
   }
 
   const message = error instanceof Error ? error.message : String(error);
-  if (
-    message.includes('Can\'t reach database server') ||
-    message.includes('Database connection') ||
-    message.includes('Environment variable not found: DATABASE_URL')
-  ) {
+  if (message.includes('Can\'t reach database server') || message.includes('Database connection')) {
     return NextResponse.json(
       { error: 'Database unavailable. Please try again later.' },
       { status: 503 }
@@ -44,13 +33,6 @@ function getRegisterErrorResponse(error: unknown) {
 
 export async function POST(request: NextRequest) {
   try {
-    if (!process.env.DATABASE_URL) {
-      return NextResponse.json(
-        { error: 'Database unavailable. Please try again later.' },
-        { status: 503 }
-      );
-    }
-
     const { email, password, username, name } = await request.json();
 
     // Validate input
@@ -92,9 +74,10 @@ export async function POST(request: NextRequest) {
     const user = await prisma.user.create({
       data: {
         email,
-        passwordHash: hashedPassword,
+        password: hashedPassword,
         username,
         name,
+        emailVerified: new Date(),
       },
     });
 
@@ -102,7 +85,7 @@ export async function POST(request: NextRequest) {
     const token = generateToken({
       id: user.id,
       email: user.email,
-      username: user.username || user.email.split('@')[0],
+      username: user.username,
     });
 
     // Create response
@@ -112,7 +95,7 @@ export async function POST(request: NextRequest) {
         user: {
           id: user.id,
           email: user.email,
-          username: user.username || user.email.split('@')[0],
+          username: user.username,
           name: user.name,
         },
       },
