@@ -117,13 +117,13 @@ export default function AuthPage() {
   }
 
   return (
-    <main className="min-h-screen bg-background text-white">
-      <div className="mx-auto flex max-w-3xl flex-col gap-8 px-6 py-20">
-        <div className="rounded-[32px] border border-white/10 bg-surface/80 p-10 shadow-glow backdrop-blur-xl">
-          <div className="mb-8 flex items-center justify-between gap-4">
-            <div>
-              <p className="text-sm uppercase tracking-[0.3em] text-accent">Authentication</p>
-              <h1 className="mt-3 text-4xl font-semibold">{mode === 'login' ? 'Welcome back' : 'Join SofStake'}</h1>
+    <main className="min-h-screen bg-background text-white flex items-center justify-center px-4 py-8 sm:py-20">
+      <div className="w-full flex max-w-3xl flex-col gap-6 sm:gap-8">
+        <div className="rounded-[2rem] sm:rounded-[32px] border border-white/10 bg-surface/80 p-6 sm:p-8 lg:p-10 shadow-glow backdrop-blur-xl">
+          <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="min-w-0">
+              <p className="text-xs sm:text-sm uppercase tracking-[0.3em] text-accent">Authentication</p>
+              <h1 className="mt-2 sm:mt-3 text-2xl sm:text-3xl lg:text-4xl font-semibold break-words">{mode === 'login' ? 'Welcome back' : 'Join SofStake'}</h1>
             </div>
             <button
               type="button"
@@ -131,59 +131,59 @@ export default function AuthPage() {
                 setMode(mode === 'login' ? 'register' : 'login');
                 setError('');
               }}
-              className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-200 transition hover:border-accent"
+              className="rounded-full border border-white/10 bg-white/5 px-3 py-2 sm:px-4 text-xs sm:text-sm text-slate-200 transition hover:border-accent whitespace-nowrap"
             >
               Switch to {mode === 'login' ? 'Register' : 'Login'}
             </button>
           </div>
-          <form className="grid gap-5" onSubmit={handleSubmit}>
+          <form className="grid gap-4 sm:gap-5" onSubmit={handleSubmit}>
             {mode === 'register' && (
-              <label className="space-y-2 text-sm text-slate-300">
+              <label className="space-y-2 text-xs sm:text-sm text-slate-300">
                 <span>Name</span>
                 <input
                   value={name}
                   onChange={(event) => setName(event.target.value)}
-                  className="w-full rounded-3xl border border-white/10 bg-slate-950/80 px-4 py-3 text-white outline-none transition focus:border-accent"
+                  className="w-full rounded-2xl sm:rounded-3xl border border-white/10 bg-slate-950/80 px-3 sm:px-4 py-2 sm:py-3 text-white outline-none transition focus:border-accent text-sm"
                   placeholder="Your full name"
                 />
               </label>
             )}
             {mode === 'register' && (
-              <label className="space-y-2 text-sm text-slate-300">
+              <label className="space-y-2 text-xs sm:text-sm text-slate-300">
                 <span>Username</span>
                 <input
                   value={username}
                   onChange={(event) => setUsername(event.target.value)}
-                  className="w-full rounded-3xl border border-white/10 bg-slate-950/80 px-4 py-3 text-white outline-none transition focus:border-accent"
+                  className="w-full rounded-2xl sm:rounded-3xl border border-white/10 bg-slate-950/80 px-3 sm:px-4 py-2 sm:py-3 text-white outline-none transition focus:border-accent text-sm"
                   placeholder="sofstaker"
                 />
               </label>
             )}
-            <label className="space-y-2 text-sm text-slate-300">
+            <label className="space-y-2 text-xs sm:text-sm text-slate-300">
               <span>Email</span>
               <input
                 type="email"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
-                className="w-full rounded-3xl border border-white/10 bg-slate-950/80 px-4 py-3 text-white outline-none transition focus:border-accent"
+                className="w-full rounded-2xl sm:rounded-3xl border border-white/10 bg-slate-950/80 px-3 sm:px-4 py-2 sm:py-3 text-white outline-none transition focus:border-accent text-sm"
                 placeholder="hey@you.com"
               />
             </label>
-            <label className="space-y-2 text-sm text-slate-300">
+            <label className="space-y-2 text-xs sm:text-sm text-slate-300">
               <span>Password</span>
               <input
                 type="password"
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
-                className="w-full rounded-3xl border border-white/10 bg-slate-950/80 px-4 py-3 text-white outline-none transition focus:border-accent"
+                className="w-full rounded-2xl sm:rounded-3xl border border-white/10 bg-slate-950/80 px-3 sm:px-4 py-2 sm:py-3 text-white outline-none transition focus:border-accent text-sm"
                 placeholder="••••••••"
               />
             </label>
-            {error && <p className="text-sm text-red-400">{error}</p>}
+            {error && <p className="text-xs sm:text-sm text-red-400">{error}</p>}
             <button
               type="submit"
               disabled={loading}
-              className="rounded-full bg-accent px-6 py-3 text-sm font-semibold text-slate-950 transition hover:bg-accent2 disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded-2xl sm:rounded-full bg-accent px-4 sm:px-6 py-2 sm:py-3 text-xs sm:text-sm font-semibold text-slate-950 transition hover:bg-accent2 disabled:cursor-not-allowed disabled:opacity-60 w-full"
             >
               {mode === 'login' ? 'Sign In' : 'Create Account'}
             </button>

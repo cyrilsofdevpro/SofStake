@@ -109,88 +109,70 @@ export default function DashboardPage() {
       <div className="mx-auto max-w-7xl px-4 pb-28 pt-6 md:px-6 lg:px-8">
         <div className="grid gap-6 xl:grid-cols-[1.9fr_1fr]">
           <main className="space-y-6">
-            <section className="rounded-[2rem] border border-white/10 bg-gradient-to-br from-slate-900/95 via-slate-950/95 to-slate-900/95 p-6 shadow-2xl shadow-black/30">
-              <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
-                <div className="space-y-4">
+            <section className="rounded-[2rem] border border-white/10 bg-gradient-to-br from-slate-900/95 via-slate-950/95 to-slate-900/95 p-4 sm:p-6 shadow-2xl shadow-black/30">
+              <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+                <div className="space-y-3 min-w-0">
                   <div className="inline-flex items-center gap-2 rounded-full bg-white/5 px-4 py-2 text-xs uppercase tracking-[0.25em] text-slate-300">
                     <Sparkles size={16} /> Trending
                   </div>
                   <div>
-                    <p className="text-sm uppercase tracking-[0.35em] text-slate-400">Wallet Balance</p>
-                    <p className="mt-2 text-5xl font-black xl:text-6xl">₦{user.walletBalance?.toLocaleString() ?? 0}</p>
+                    <p className="text-xs sm:text-sm uppercase tracking-[0.35em] text-slate-400">Wallet Balance</p>
+                    <p className="mt-2 text-3xl sm:text-4xl lg:text-5xl font-black break-words">₦{user.walletBalance?.toLocaleString() ?? 0}</p>
                   </div>
-                  <p className="max-w-2xl text-slate-300 leading-7">
+                  <p className="text-xs sm:text-sm text-slate-300 leading-6">
                     Bet. Play. Mine. Win everyday with live games, crypto rewards, and the fastest social betting experience.
                   </p>
                 </div>
-                <div className="grid gap-4 sm:grid-cols-2 xl:w-[380px]">
-                  <div className="rounded-3xl border border-white/10 bg-slate-900/80 p-5">
-                    <p className="text-xs uppercase tracking-[0.35em] text-slate-400">USDT Wallet</p>
-                    <p className="mt-3 text-3xl font-black text-cyan-300">2,450.50</p>
+                <div className="grid grid-cols-1 gap-3 w-full sm:grid-cols-2 lg:w-auto">
+                  <div className="rounded-3xl border border-white/10 bg-slate-900/80 p-4">
+                    <p className="text-xs uppercase tracking-[0.35em] text-slate-400">SOF Balance</p>
+                    <p className="mt-3 text-2xl sm:text-3xl font-black text-cyan-300">{(sofBalance ?? 0).toFixed(2)} SOF</p>
                   </div>
-                  <div className="rounded-3xl border border-white/10 bg-slate-900/80 p-5">
-                    <p className="text-xs uppercase tracking-[0.35em] text-slate-400">Mining Earnings</p>
-                    <p className="mt-3 text-3xl font-black text-amber-300">560.25 SOF</p>
+                  <div className="rounded-3xl border border-white/10 bg-slate-900/80 p-4">
+                    <p className="text-xs uppercase tracking-[0.35em] text-slate-400">Mining Status</p>
+                    <p className="mt-3 text-xs sm:text-sm font-semibold text-amber-300 break-words">{claimStatus}</p>
                   </div>
                 </div>
               </div>
 
-              <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+              <div className="mt-4 sm:mt-6 flex flex-col gap-2 sm:gap-3 sm:flex-row">
                 <Link
                   href="/dashboard"
-                  className="inline-flex items-center justify-center rounded-3xl bg-gradient-to-r from-purple-600 to-fuchsia-500 px-5 py-3 text-sm font-semibold text-white shadow-xl shadow-purple-900/20 transition hover:from-purple-700 hover:to-fuchsia-600"
+                  className="inline-flex items-center justify-center rounded-3xl bg-gradient-to-r from-purple-600 to-fuchsia-500 px-4 sm:px-5 py-2 sm:py-3 text-xs sm:text-sm font-semibold text-white shadow-xl shadow-purple-900/20 transition hover:from-purple-700 hover:to-fuchsia-600"
                 >
                   Play Now
                 </Link>
                 <Link
                   href="/wallet"
-                  className="inline-flex items-center justify-center rounded-3xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-slate-200 transition hover:bg-white/10"
+                  className="inline-flex items-center justify-center rounded-3xl border border-white/10 bg-white/5 px-4 sm:px-5 py-2 sm:py-3 text-xs sm:text-sm font-semibold text-slate-200 transition hover:bg-white/10"
                 >
                   Deposit
                 </Link>
               </div>
             </section>
 
-            <section className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-              <div className="rounded-[2rem] border border-white/10 bg-slate-900/95 p-5 shadow-2xl shadow-black/30">
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                  <div>
-                    <p className="text-sm uppercase tracking-[0.35em] text-slate-400">SOFCOIN MINING</p>
-                    <p className="mt-2 text-3xl font-black">560.25 SOF</p>
-                    <p className="text-sm text-slate-400 mt-1">Mining Power • 125.50 MH/s</p>
-                  </div>
-                  <div className="rounded-full bg-yellow-400/10 p-4 text-yellow-300 text-3xl drop-shadow-lg">🪙</div>
-                </div>
-                <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                  <div className="rounded-3xl bg-white/5 p-4 text-xs">
-                    <p className="text-slate-400">Your Mining Earnings</p>
-                    <p className="mt-2 text-lg font-semibold text-white">560.25 SOF</p>
-                  </div>
-                  <div className="rounded-3xl bg-white/5 p-4 text-xs">
-                    <p className="text-slate-400">Weekly Cap</p>
-                    <p className="mt-2 text-lg font-semibold text-white">20 SOF</p>
+            <section className="grid gap-4 sm:gap-6 lg:grid-cols-[1.2fr_0.8fr]">
+              <div className="rounded-[2rem] border border-white/10 bg-slate-900/95 p-4 sm:p-5 shadow-2xl shadow-black/30 overflow-hidden">
+                <div className="flex flex-col gap-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="text-xs sm:text-sm uppercase tracking-[0.35em] text-slate-400">SOFCOIN</p>
+                      <p className="mt-2 text-2xl sm:text-3xl font-black break-words">{(sofBalance ?? 0).toFixed(2)} SOF</p>
+                      <p className="text-xs text-slate-400 mt-1">Mining Earnings</p>
+                    </div>
+                    <div className="rounded-full bg-yellow-400/10 p-2 sm:p-3 text-yellow-300 text-2xl sm:text-3xl drop-shadow-lg flex-shrink-0">🪙</div>
                   </div>
                 </div>
               </div>
-              <div className="rounded-[2rem] border border-white/10 bg-slate-900/95 p-5 shadow-2xl shadow-black/30">
-                <div className="flex items-center justify-between gap-4">
+              <div className="rounded-[2rem] border border-white/10 bg-slate-900/95 p-4 sm:p-5 shadow-2xl shadow-black/30 overflow-hidden">
+                <div className="space-y-3 sm:space-y-4">
                   <div>
-                    <p className="text-sm uppercase tracking-[0.35em] text-slate-400">Dashboard</p>
-                    <h2 className="mt-2 text-2xl font-bold">Total Staked</h2>
+                    <p className="text-xs sm:text-sm uppercase tracking-[0.35em] text-slate-400">Total Staked</p>
+                    <p className="mt-2 text-2xl sm:text-3xl font-black break-words">{totalStaked.toLocaleString()}</p>
                   </div>
-                  <div className="text-right">
-                    <p className="text-sm text-slate-400">Active stakes</p>
-                    <p className="mt-2 text-3xl font-black">{totalStaked.toLocaleString()}</p>
-                  </div>
-                </div>
-                <div className="mt-5 space-y-3">
-                  <div className="rounded-3xl bg-white/5 p-4">
-                    <p className="text-sm text-slate-300">Current Reward Status</p>
-                    <p className="mt-2 font-semibold text-white">{claimStatus}</p>
-                  </div>
-                  <div className="rounded-3xl bg-white/5 p-4">
-                    <p className="text-sm text-slate-300">Wallet Funds</p>
-                    <p className="mt-2 font-semibold text-white">₦{user.walletBalance?.toLocaleString() ?? 0}</p>
+                  <div className="rounded-2xl bg-white/5 p-3">
+                    <p className="text-xs text-slate-300">Status</p>
+                    <p className="mt-1 text-xs sm:text-sm font-semibold text-white break-words">{claimStatus}</p>
                   </div>
                 </div>
               </div>
