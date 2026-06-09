@@ -109,9 +109,9 @@ export default function DashboardPage() {
       </div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
         <div className="rounded-xl bg-slate-900/50 border border-white/5 p-6 hover:border-cyan-500/30 transition-colors">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-4">
             <div>
               <p className="text-xs uppercase text-slate-400">Wallet Balance</p>
               <p className="text-2xl font-bold mt-2">₦{user?.walletBalance?.toLocaleString() ?? 0}</p>
