@@ -1,0 +1,250 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum TransactionType {
+  DEPOSIT
+  WITHDRAWAL
+  BET
+  REWARD
+  REFERRAL
+  MINING
+  FEE
+  ADJUSTMENT
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REVERSED
+}
+
+enum BetStatus {
+  PENDING
+  WON
+  LOST
+  CANCELED
+  SETTLED
+}
+
+enum MatchResult {
+  PENDING
+  HOME
+  AWAY
+  DRAW
+  CANCELED
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  username     String?   @unique
+  passwordHash String
+  role         String    @default("user")
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  lastSeenAt   DateTime?
+
+  wallet                Wallet?
+  transactions          Transaction[]
+  bets                  Bet[]
+  referralsMade         Referral[]       @relation("Referrer")
+  referralsGot          Referral[]       @relation("Referred")
+  referralRewards       ReferralReward[] @relation("ReferralRewardUser")
+  referralRewardSources ReferralReward[] @relation("ReferralRewardSourceUser")
+  miningSessions        MiningSession[]
+  miningRewards         MiningReward[]
+  auditLogs             AuditLog[]
+  sessions              Session[]
+  accounts              Account[]
+
+  @@index([email])
+  @@index([createdAt])
+}
+
+model Wallet {
+  id            String        @id @default(cuid())
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId        String        @unique
+  balance       Decimal       @default(0) @db.Decimal(30, 10)
+  lockedBalance Decimal       @default(0) @db.Decimal(30, 10)
+  version       Int           @default(0)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  ledgerEntries LedgerEntry[]
+
+  @@index([userId])
+}
+
+model LedgerEntry {
+  id            String            @id @default(cuid())
+  wallet        Wallet            @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  walletId      String
+  type          TransactionType
+  amount        Decimal           @db.Decimal(30, 10)
+  balanceBefore Decimal           @db.Decimal(30, 10)
+  balanceAfter  Decimal           @db.Decimal(30, 10)
+  reference     String?           @unique
+  status        TransactionStatus @default(COMPLETED)
+  metadata      Json?
+  transaction   Transaction?      @relation("LedgerTransaction", fields: [transactionId], references: [id])
+  transactionId String?           @unique
+  createdAt     DateTime          @default(now())
+
+  @@index([walletId])
+  @@index([createdAt])
+}
+
+model Transaction {
+  id             String            @id @default(cuid())
+  user           User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId         String
+  type           TransactionType
+  amount         Decimal           @db.Decimal(30, 10)
+  status         TransactionStatus @default(PENDING)
+  provider       String?
+  providerRef    String?
+  ledgerEntry    LedgerEntry?      @relation("LedgerTransaction")
+  metadata       Json?
+  bet            Bet?              @relation("BetTransaction")
+  referralReward ReferralReward?   @relation("TransactionReferralReward")
+  createdAt      DateTime          @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model Match {
+  id        String      @id @default(cuid())
+  title     String
+  odds      Json
+  result    MatchResult @default(PENDING)
+  settledAt DateTime?
+  bets      Bet[]
+  createdAt DateTime    @default(now())
+
+  @@index([createdAt])
+}
+
+model Bet {
+  id            String       @id @default(cuid())
+  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId        String
+  match         Match?       @relation(fields: [matchId], references: [id])
+  matchId       String?
+  amount        Decimal      @db.Decimal(30, 10)
+  prediction    String
+  status        BetStatus    @default(PENDING)
+  payout        Decimal      @default(0) @db.Decimal(30, 10)
+  fee           Decimal      @default(0) @db.Decimal(30, 10)
+  transaction   Transaction? @relation("BetTransaction", fields: [transactionId], references: [id])
+  transactionId String?      @unique
+  createdAt     DateTime     @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model MiningSession {
+  id            String         @id @default(cuid())
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId        String
+  startTime     DateTime       @default(now())
+  endTime       DateTime?
+  rewardRate    Decimal        @db.Decimal(30, 10)
+  metadata      Json?
+  miningRewards MiningReward[] @relation("MiningSessionRewards")
+  createdAt     DateTime       @default(now())
+
+  @@index([userId])
+}
+
+model MiningReward {
+  id              String         @id @default(cuid())
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId          String
+  miningSession   MiningSession? @relation("MiningSessionRewards", fields: [miningSessionId], references: [id])
+  miningSessionId String?
+  amount          Decimal        @db.Decimal(30, 10)
+  source          String?
+  createdAt       DateTime       @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model Referral {
+  id         String   @id @default(cuid())
+  referrer   User     @relation("Referrer", fields: [referrerId], references: [id], onDelete: Cascade)
+  referrerId String
+  referred   User     @relation("Referred", fields: [referredId], references: [id], onDelete: Cascade)
+  referredId String
+  createdAt  DateTime @default(now())
+
+  @@unique([referrerId, referredId])
+  @@index([referrerId])
+  @@index([referredId])
+}
+
+model ReferralReward {
+  id            String       @id @default(cuid())
+  user          User         @relation("ReferralRewardUser", fields: [userId], references: [id], onDelete: Cascade)
+  userId        String
+  amount        Decimal      @db.Decimal(30, 10)
+  sourceUser    User?        @relation("ReferralRewardSourceUser", fields: [sourceUserId], references: [id])
+  sourceUserId  String?
+  transaction   Transaction? @relation("TransactionReferralReward", fields: [transactionId], references: [id])
+  transactionId String?      @unique
+  createdAt     DateTime     @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       String
+  expires      DateTime
+
+  @@index([userId])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  actorId   String?
+  actor     User?    @relation(fields: [actorId], references: [id])
+  action    String
+  target    String?
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  @@index([actorId])
+  @@index([createdAt])
+}
