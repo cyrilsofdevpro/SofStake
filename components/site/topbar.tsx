@@ -3,7 +3,8 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
-import { Bell, MessageSquare, Settings } from 'lucide-react';
+import { Bell, MessageSquare, Settings, Menu, X } from 'lucide-react';
+import { sidebarItems } from './sidebar';
 import { getStoredUser } from '@/lib/user';
 
 const topbarItems = [
@@ -21,6 +22,7 @@ export function Topbar() {
   const pathname = usePathname();
   const [user, setUser] = useState<any>(null);
   const [notifications, setNotifications] = useState(3);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const storedUser = getStoredUser();
@@ -44,6 +46,16 @@ export function Topbar() {
             </div>
             <span className="text-lg font-bold text-white hidden sm:inline">SofStake</span>
           </Link>
+        </div>
+
+        <div className="md:hidden">
+          <button
+            aria-label="Open menu"
+            onClick={() => setMobileMenuOpen(true)}
+            className="p-2 rounded-lg hover:bg-white/5 transition-colors text-slate-300 hover:text-white"
+          >
+            <Menu size={20} />
+          </button>
         </div>
 
         <nav className="flex-1 overflow-x-auto">
@@ -96,6 +108,47 @@ export function Topbar() {
           </Link>
         </div>
       </div>
+
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-50 flex">
+          <div className="w-72 bg-gradient-to-b from-slate-950 to-slate-900 border-r border-white/10 p-6 overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-500 to-purple-600">
+                  <span className="text-white font-bold text-lg">SF</span>
+                </div>
+                <span className="text-lg font-bold text-white">SofStake</span>
+              </div>
+              <button onClick={() => setMobileMenuOpen(false)} className="p-2 rounded-lg hover:bg-white/5 text-slate-300">
+                <X size={18} />
+              </button>
+            </div>
+
+            <nav className="flex flex-col gap-2">
+              {sidebarItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white"
+                  >
+                    <Icon size={20} />
+                    <span className="text-sm font-medium">{item.label}</span>
+                  </Link>
+                );
+              })}
+            </nav>
+          </div>
+
+          <button
+            className="flex-1 bg-black/50"
+            onClick={() => setMobileMenuOpen(false)}
+            aria-label="Close menu"
+          />
+        </div>
+      )}
     </header>
   );
 }

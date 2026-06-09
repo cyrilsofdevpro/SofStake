@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 
-const sidebarItems = [
+export const sidebarItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/wallet', label: 'Wallet', icon: Wallet },
   { href: '/game', label: 'Games', icon: Gamepad2 },
@@ -40,9 +40,9 @@ export function Sidebar() {
   }
 
   return (
-    <aside className={`fixed left-0 top-0 h-screen bg-gradient-to-b from-slate-950 to-slate-900 border-r border-white/10 pt-20 transition-all duration-300 ${
-      isOpen ? 'w-64' : 'w-20'
-    } overflow-y-auto z-30`}>
+    <aside className={`hidden md:block md:fixed md:left-0 md:top-0 md:h-screen md:bg-gradient-to-b md:from-slate-950 md:to-slate-900 md:border-r md:border-white/10 md:pt-20 transition-all duration-300 ${
+      isOpen ? 'md:w-64' : 'md:w-20'
+    } md:overflow-y-auto md:z-30`}>
       <nav className="flex flex-col gap-2 px-4 py-6">
         {sidebarItems.map((item) => {
           const Icon = item.icon;
