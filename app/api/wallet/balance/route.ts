@@ -28,10 +28,10 @@ export async function GET(request: NextRequest) {
         wallet: {
           id: newWallet.id,
           userId: newWallet.userId,
-          balance: Number(newWallet.balance),
-          lockedBalance: Number(newWallet.lockedBalance),
-          sofBalance: Number(newWallet.sofBalance),
-          usdBalance: Number(newWallet.usdBalance),
+          balance: newWallet.balance,
+          lockedBalance: newWallet.lockedBalance,
+          sofBalance: newWallet.sofBalance,
+          usdBalance: newWallet.usdBalance,
         },
       });
     }
@@ -41,10 +41,10 @@ export async function GET(request: NextRequest) {
       wallet: {
         id: wallet.id,
         userId: wallet.userId,
-        balance: Number(wallet.balance),
-        lockedBalance: Number(wallet.lockedBalance),
-        sofBalance: Number(wallet.sofBalance),
-        usdBalance: Number(wallet.usdBalance),
+        balance: wallet.balance,
+        lockedBalance: wallet.lockedBalance,
+        sofBalance: wallet.sofBalance,
+        usdBalance: wallet.usdBalance,
       },
     });
   } catch (error) {

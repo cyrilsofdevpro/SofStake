@@ -47,7 +47,8 @@ export async function POST(request: NextRequest) {
       where: { userId: user.id },
     });
 
-    if (!wallet || wallet.balance < BigInt(Math.floor(stake))) {
+    const walletBalance = Number(wallet?.balance || 0);
+    if (!wallet || walletBalance < stake) {
       return NextResponse.json(
         { error: 'Insufficient wallet balance to place this bet' },
         { status: 400 }
@@ -60,9 +61,9 @@ export async function POST(request: NextRequest) {
         userId: user.id,
         pairAddress,
         direction,
-        stake: BigInt(Math.floor(stake)),
+        stake,
         windowMinutes,
-        entryPrice: BigInt(Math.floor(entryPrice * 100)) / BigInt(100), // Store as 2 decimals
+        entryPrice,
         resolveAt: new Date(Date.now() + windowMinutes * 60000),
         status: 'open',
       },
@@ -73,19 +74,20 @@ export async function POST(request: NextRequest) {
       where: { userId: user.id },
       data: {
         balance: {
-          decrement: BigInt(Math.floor(stake)),
+          decrement: stake,
         },
       },
     });
 
     // Create ledger entry
+    const balanceBefore = Number(wallet.balance);
     await db.ledgerEntry.create({
       data: {
         walletId: wallet.id,
         type: 'BET',
-        amount: BigInt(Math.floor(stake)),
-        balanceBefore: wallet.balance,
-        balanceAfter: wallet.balance - BigInt(Math.floor(stake)),
+        amount: stake,
+        balanceBefore,
+        balanceAfter: balanceBefore - stake,
         source: 'crypto_bet',
         reference: bet.id,
         status: 'COMPLETED',
@@ -99,9 +101,9 @@ export async function POST(request: NextRequest) {
           id: bet.id,
           pairAddress: bet.pairAddress,
           direction: bet.direction,
-          stake: Number(bet.stake),
+          stake: bet.stake,
           windowMinutes: bet.windowMinutes,
-          entryPrice: Number(bet.entryPrice),
+          entryPrice: bet.entryPrice,
           createdAt: bet.createdAt.toISOString(),
           resolveAt: bet.resolveAt.toISOString(),
         },

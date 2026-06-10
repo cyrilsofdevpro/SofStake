@@ -47,10 +47,10 @@ export async function POST(request: NextRequest) {
 
     // Calculate outcome
     const entryPrice = Number(bet.entryPrice);
+    const stakeAmount = Number(bet.stake);
     const delta = currentPrice - entryPrice;
     const isTie = Math.abs(delta) < 0.0001;
     const isCorrect = bet.direction === 'UP' ? delta > 0 : delta < 0;
-    const stakeAmount = Number(bet.stake);
     const payout = isTie ? stakeAmount : isCorrect ? Math.round(stakeAmount * 1.8) : 0;
     const outcome = isTie ? 'TIE' : isCorrect ? 'WIN' : 'LOSS';
 
@@ -72,8 +72,8 @@ export async function POST(request: NextRequest) {
       data: {
         status: 'resolved',
         outcome,
-        resultPrice: BigInt(Math.floor(currentPrice * 100)) / BigInt(100),
-        payout: BigInt(payout),
+        resultPrice: currentPrice,
+        payout,
         resolvedAt: new Date(),
       },
     });
@@ -84,19 +84,21 @@ export async function POST(request: NextRequest) {
         where: { userId: user.id },
         data: {
           balance: {
-            increment: BigInt(payout),
+            increment: payout,
           },
         },
       });
 
       // Create ledger entry for payout
+      const walletBefore = Number(wallet.balance);
+      const walletAfter = walletBefore + payout;
       await db.ledgerEntry.create({
         data: {
           walletId: wallet.id,
           type: 'REWARD',
-          amount: BigInt(payout),
-          balanceBefore: wallet.balance,
-          balanceAfter: wallet.balance + BigInt(payout),
+          amount: payout,
+          balanceBefore: walletBefore,
+          balanceAfter: walletAfter,
           source: 'crypto_bet_win',
           reference: betId,
           status: 'COMPLETED',

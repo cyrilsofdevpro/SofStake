@@ -31,23 +31,25 @@ export async function POST(request: NextRequest) {
     }
 
     if (type === 'increment') {
+      const amountNum = Math.floor(amount);
       const updatedWallet = await db.wallet.update({
         where: { userId: user.id },
         data: {
           balance: {
-            increment: BigInt(Math.floor(amount)),
+            increment: amountNum,
           },
         },
       });
 
       // Create ledger entry
+      const walletBefore = Number(wallet.balance);
       await db.ledgerEntry.create({
         data: {
           walletId: wallet.id,
           type: 'REWARD',
-          amount: BigInt(Math.floor(amount)),
-          balanceBefore: wallet.balance,
-          balanceAfter: wallet.balance + BigInt(Math.floor(amount)),
+          amount: amountNum,
+          balanceBefore: walletBefore,
+          balanceAfter: walletBefore + amountNum,
           source: 'wallet_update',
           reference: reference || undefined,
           status: 'COMPLETED',
@@ -58,13 +60,15 @@ export async function POST(request: NextRequest) {
         success: true,
         wallet: {
           id: updatedWallet.id,
-          balance: Number(updatedWallet.balance),
-          sofBalance: Number(updatedWallet.sofBalance),
-          usdBalance: Number(updatedWallet.usdBalance),
+          balance: updatedWallet.balance,
+          sofBalance: updatedWallet.sofBalance,
+          usdBalance: updatedWallet.usdBalance,
         },
       });
     } else if (type === 'decrement') {
-      if (wallet.balance < BigInt(Math.floor(amount))) {
+      const amountNum = Math.floor(amount);
+      const walletNum = Number(wallet.balance);
+      if (walletNum < amountNum) {
         return NextResponse.json(
           { error: 'Insufficient balance' },
           { status: 400 }
@@ -75,7 +79,7 @@ export async function POST(request: NextRequest) {
         where: { userId: user.id },
         data: {
           balance: {
-            decrement: BigInt(Math.floor(amount)),
+            decrement: amountNum,
           },
         },
       });
@@ -85,9 +89,9 @@ export async function POST(request: NextRequest) {
         data: {
           walletId: wallet.id,
           type: 'BET',
-          amount: BigInt(Math.floor(amount)),
-          balanceBefore: wallet.balance,
-          balanceAfter: wallet.balance - BigInt(Math.floor(amount)),
+          amount: amountNum,
+          balanceBefore: walletNum,
+          balanceAfter: walletNum - amountNum,
           source: 'wallet_update',
           reference: reference || undefined,
           status: 'COMPLETED',
@@ -98,9 +102,9 @@ export async function POST(request: NextRequest) {
         success: true,
         wallet: {
           id: updatedWallet.id,
-          balance: Number(updatedWallet.balance),
-          sofBalance: Number(updatedWallet.sofBalance),
-          usdBalance: Number(updatedWallet.usdBalance),
+          balance: updatedWallet.balance,
+          sofBalance: updatedWallet.sofBalance,
+          usdBalance: updatedWallet.usdBalance,
         },
       });
     } else {
