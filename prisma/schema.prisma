@@ -93,6 +93,8 @@ model User {
   miningClaims          MiningClaim[]
   stakings             Staking[]
   crashBets            CrashBet[] @relation("CrashBetUser")
+  coinFlipGames        CoinFlipGame[] @relation("CoinFlipGameUser")
+  gameHistory          GameHistory[] @relation("GameHistoryUser")
 
   @@index([email])
   @@index([createdAt])
@@ -435,5 +437,46 @@ model WithdrawalTransaction {
 
   @@index([userId])
   @@index([status])
+  @@index([createdAt])
+}
+
+model CoinFlipGame {
+  id            String   @id @default(cuid())
+  user          User     @relation("CoinFlipGameUser", fields: [userId], references: [id], onDelete: Cascade)
+  userId        String
+  choice        String   // heads or tails
+  result        String   // heads or tails
+  betAmount     Decimal  @db.Decimal(30, 10)
+  payout        Decimal  @db.Decimal(30, 10)
+  winAmount     Decimal  @db.Decimal(30, 10)
+  status        String   @default("completed") // pending, completed, failed
+  walletBefore  Decimal  @db.Decimal(30, 10)
+  walletAfter   Decimal  @db.Decimal(30, 10)
+  multiplier    Decimal  @default(2) @db.Decimal(5, 2) // 2x for coin flip
+  seed          String?  // for provably fair
+  reference     String?  @unique
+  metadata      Json?
+  createdAt     DateTime @default(now())
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model GameHistory {
+  id           String   @id @default(cuid())
+  user         User     @relation("GameHistoryUser", fields: [userId], references: [id], onDelete: Cascade)
+  userId       String
+  gameType     String   // coinflip, crash, dice, wheel
+  betAmount    Decimal  @db.Decimal(30, 10)
+  payout       Decimal  @db.Decimal(30, 10)
+  winAmount    Decimal  @db.Decimal(30, 10)
+  result       String   // won, lost, tie
+  multiplier   Decimal  @db.Decimal(10, 2)
+  metadata     Json?
+  createdAt    DateTime @default(now())
+
+  @@index([userId])
+  @@index([gameType])
   @@index([createdAt])
 }

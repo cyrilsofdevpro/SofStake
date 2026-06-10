@@ -137,9 +137,14 @@ export default function GamePage() {
               Start with simple multiplayer-style games: Dice Battle and Wheel Game. Stakes are deducted up front, and outcomes are resolved instantly.
             </p>
           </div>
-          <Link href="/dashboard" className="rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition hover:border-accent">
-            Back to dashboard
-          </Link>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <Link href="/games" className="rounded-full border border-yellow-500/50 bg-yellow-500/10 px-5 py-3 text-sm font-semibold text-yellow-400 transition hover:border-yellow-500">
+              🎮 Games Hub
+            </Link>
+            <Link href="/dashboard" className="rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition hover:border-accent">
+              Back to dashboard
+            </Link>
+          </div>
         </div>
 
         <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
