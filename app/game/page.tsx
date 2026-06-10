@@ -4,8 +4,9 @@ import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { addTransaction, getStoredUser, updateUserStats, StoredUser, getFriends } from '@/lib/user';
+import CrashGameModal from '@/components/CrashGameModal';
 
-type GameType = 'dice' | 'wheel';
+type GameType = 'dice' | 'wheel' | 'crash';
 
 type GameState = 'idle' | 'searching' | 'ready' | 'completed';
 
@@ -27,6 +28,7 @@ export default function GamePage() {
   const [result, setResult] = useState('');
   const [playerScore, setPlayerScore] = useState<number | null>(null);
   const [opponentScore, setOpponentScore] = useState<number | null>(null);
+  const [isCrashGameOpen, setIsCrashGameOpen] = useState(false);
 
   useEffect(() => {
     const storedUser = getStoredUser();
@@ -168,6 +170,13 @@ export default function GamePage() {
                   >
                     Wheel Game
                   </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsCrashGameOpen(true)}
+                    className="rounded-full bg-gradient-to-r from-purple-500 to-blue-500 px-4 py-3 text-sm font-semibold text-white transition hover:from-purple-600 hover:to-blue-600"
+                  >
+                    🚀 Crash Game
+                  </button>
                 </div>
                 <p className="text-sm text-slate-300">
                   {gameType === 'dice'
@@ -292,6 +301,7 @@ export default function GamePage() {
           </aside>
         </div>
       </div>
+      <CrashGameModal isOpen={isCrashGameOpen} onClose={() => setIsCrashGameOpen(false)} />
     </main>
   );
 }

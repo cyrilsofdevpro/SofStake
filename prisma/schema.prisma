@@ -89,8 +89,10 @@ model User {
   accounts              Account[]
   walletTransactions    WalletTransaction[]
   withdrawalRequests    WithdrawalRequest[]
+  withdrawalTransactions WithdrawalTransaction[] @relation("WithdrawalTransactionUser")
   miningClaims          MiningClaim[]
   stakings             Staking[]
+  crashBets            CrashBet[] @relation("CrashBetUser")
 
   @@index([email])
   @@index([createdAt])
@@ -353,4 +355,85 @@ model AnalyticsEvent {
 
   @@index([createdAt])
   @@index([ip])
+}
+
+model GameRound {
+  id            String      @id @default(cuid())
+  gameType      String      @default("crash") // crash, dice, flip, wheel
+  status        String      @default("active") // active, crashed, settled
+  multiplier    Decimal     @default(1) @db.Decimal(10, 2)
+  crashPoint    Decimal?    @db.Decimal(10, 2) // where the game crashed
+  startedAt     DateTime    @default(now())
+  crashedAt     DateTime?
+  settledAt     DateTime?
+  provablyFairSeed String?
+  bets          CrashBet[]
+  totalWagers   Decimal     @default(0) @db.Decimal(30, 10)
+  totalPayouts  Decimal     @default(0) @db.Decimal(30, 10)
+  createdAt     DateTime    @default(now())
+
+  @@index([gameType])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model CrashBet {
+  id              String      @id @default(cuid())
+  gameRound       GameRound   @relation(fields: [roundId], references: [id], onDelete: Cascade)
+  roundId         String
+  user            User        @relation("CrashBetUser", fields: [userId], references: [id], onDelete: Cascade)
+  userId          String
+  betAmount       Decimal     @db.Decimal(30, 10)
+  autoCashout     Decimal?    @db.Decimal(10, 2) // multiplier to auto cashout at
+  manualCashout   Decimal?    @db.Decimal(10, 2) // multiplier user manually cashed out at
+  status          String      @default("active") // active, won, lost, cashed_out, uncashed
+  payout          Decimal     @default(0) @db.Decimal(30, 10)
+  winAmount       Decimal     @default(0) @db.Decimal(30, 10)
+  walletLocked    Decimal     @db.Decimal(30, 10) // amount locked from wallet during bet
+  lockedTransaction String?   // reference to wallet lock transaction
+  createdAt       DateTime    @default(now())
+  cashedOutAt     DateTime?
+  settledAt       DateTime?
+
+  @@index([userId])
+  @@index([roundId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model GameHistory {
+  id            String    @id @default(cuid())
+  userId        String
+  gameType      String
+  roundId       String
+  betAmount     Decimal   @db.Decimal(30, 10)
+  payout        Decimal   @db.Decimal(30, 10)
+  winAmount     Decimal   @db.Decimal(30, 10)
+  multiplier    Decimal   @db.Decimal(10, 2)
+  status        String
+  createdAt     DateTime  @default(now())
+
+  @@index([userId])
+  @@index([gameType])
+  @@index([createdAt])
+}
+
+model WithdrawalTransaction {
+  id                String   @id @default(cuid())
+  user              User     @relation("WithdrawalTransactionUser", fields: [userId], references: [id], onDelete: Cascade)
+  userId            String
+  amountRequested   Decimal  @db.Decimal(30, 10)
+  amountProcessed   Decimal  @db.Decimal(30, 10)
+  fee               Decimal  @default(0) @db.Decimal(30, 10)
+  method            String   // bank_transfer, crypto, paystack
+  status            String   @default("pending") // pending, processing, completed, failed
+  reference         String?  @unique
+  bankDetails       Json?    // for bank transfers
+  metadata          Json?
+  processedAt       DateTime?
+  createdAt         DateTime @default(now())
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
 }

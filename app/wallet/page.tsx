@@ -26,13 +26,16 @@ const paystackPublicKey = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY;
 
 export default function WalletPage() {
   const [walletBalance, setWalletBalance] = useState(0);
+  const [sofBalance, setSofBalance] = useState(0);
   const [user, setUser] = useState<StoredUser | null>(null);
   const [depositAmount, setDepositAmount] = useState(500);
+  const [withdrawAmount, setWithdrawAmount] = useState(1000);
   const [isProcessing, setIsProcessing] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
   const [authorizationUrl, setAuthorizationUrl] = useState<string | null>(null);
   const [confirmation, setConfirmation] = useState<{ reference: string; amount: number; status: string } | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [activeTab, setActiveTab] = useState<'deposit' | 'withdraw'>('deposit');
   const router = useRouter();
 
   const formatTransactionMeta = (type: Transaction['type']) => {
@@ -65,6 +68,19 @@ export default function WalletPage() {
       : (storedUser?.transactions?.[0]?.balance ?? 0);
     setWalletBalance(fallbackBalance || 0);
     setTransactions(getTransactionHistory(10));
+
+    // Fetch sofBalance from API
+    const fetchSofBalance = async () => {
+      try {
+        const res = await fetch('/api/wallet');
+        const data = await res.json();
+        setSofBalance(Number(data.sofBalance) || 0);
+      } catch (error) {
+        console.error('Failed to fetch SOF balance:', error);
+        setSofBalance(storedUser?.sofBalance || 0);
+      }
+    };
+    fetchSofBalance();
   }, []);
 
   const handleDeposit = async (amount: number) => {
@@ -181,6 +197,62 @@ export default function WalletPage() {
     }
   };
 
+  const handleWithdraw = async (amount: number) => {
+    if (!user) {
+      setStatusMessage('Please log in to withdraw funds.');
+      return;
+    }
+
+    if (amount > walletBalance) {
+      setStatusMessage('Insufficient balance to withdraw.');
+      return;
+    }
+
+    if (amount < 100) {
+      setStatusMessage('Minimum withdrawal is ₦100.');
+      return;
+    }
+
+    setIsProcessing(true);
+    setStatusMessage('Processing withdrawal...');
+
+    try {
+      const response = await fetch('/api/wallet/withdraw', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user.id,
+          amount,
+          method: 'bank_transfer'
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Withdrawal request failed');
+      }
+
+      // Add withdrawal transaction to history
+      const updatedUser = addTransaction('withdraw', -amount, `Bank withdrawal (${data.reference})`, 'pending');
+      if (updatedUser) {
+        setUser(updatedUser);
+        const newBalance = (updatedUser.walletBalance && updatedUser.walletBalance > 0)
+          ? updatedUser.walletBalance
+          : (updatedUser.transactions?.[0]?.balance ?? 0);
+        setWalletBalance(newBalance || 0);
+        setTransactions(getTransactionHistory(10));
+        setStatusMessage('✓ Withdrawal request submitted. Processing within 24-48 hours.');
+        setWithdrawAmount(1000);
+        setActiveTab('deposit');
+      }
+    } catch (error: any) {
+      setStatusMessage(error?.message || 'Failed to process withdrawal request');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   return (
     <main className="min-h-screen bg-background text-white">
       <div className="mx-auto max-w-6xl px-6 py-16">
@@ -199,7 +271,14 @@ export default function WalletPage() {
                   <p className="text-sm uppercase tracking-[0.35em] text-accent">Wallet</p>
                   <h1 className="text-4xl font-semibold">Manage funds</h1>
                 </div>
-                <div className="rounded-full bg-white/5 px-4 py-2 text-sm text-slate-200">Minimum deposit ₦100</div>
+                <div className="flex flex-col gap-2 sm:flex-row sm:gap-4">
+                  <div className="rounded-full bg-white/5 px-4 py-2 text-sm text-slate-200">
+                    <span className="text-slate-400">SOF Balance:</span> {sofBalance.toLocaleString()}
+                  </div>
+                  <div className="rounded-full bg-white/5 px-4 py-2 text-sm text-slate-200">
+                    <span className="text-slate-400">Wallet:</span> ₦{walletBalance.toLocaleString()}
+                  </div>
+                </div>
               </div>
               {!paystackPublicKey ? (
                 <div className="mt-6 rounded-3xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200">
@@ -208,31 +287,86 @@ export default function WalletPage() {
               ) : null}
               <div className="mt-10 grid gap-6 xl:grid-cols-[1.3fr_0.9fr]">
                 <section className="rounded-3xl border border-white/10 bg-slate-950/80 p-6">
-                  <div className="space-y-4">
-                    <div className="rounded-3xl bg-white/5 p-4">
-                      <p className="text-sm uppercase tracking-[0.25em] text-slate-400">Current balance</p>
-                      <p className="mt-2 text-3xl font-semibold text-white">₦{walletBalance.toLocaleString()}</p>
-                    </div>
-                    <div className="grid gap-4 sm:grid-cols-[1fr_auto]">
-                      <label className="grid gap-2">
-                        <span className="text-sm uppercase tracking-[0.25em] text-slate-400">Deposit amount</span>
-                        <input
-                          type="number"
-                          min={100}
-                          step={100}
-                          value={depositAmount}
-                          onChange={(event) => setDepositAmount(Number(event.target.value))}
-                          className="rounded-3xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none transition focus:border-accent"
-                        />
-                      </label>
-                      <button
-                        disabled={isProcessing || !paystackPublicKey}
-                        onClick={() => handleDeposit(depositAmount)}
-                        className="rounded-full bg-accent px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-accent2 disabled:cursor-not-allowed disabled:opacity-50"
-                      >
-                        {isProcessing ? 'Processing...' : `Deposit ₦${depositAmount.toLocaleString()}`}
-                      </button>
-                    </div>
+                  <div className="flex gap-2 border-b border-white/10">
+                    <button
+                      onClick={() => setActiveTab('deposit')}
+                      className={`pb-3 text-sm font-semibold uppercase tracking-[0.2em] transition ${
+                        activeTab === 'deposit'
+                          ? 'border-b-2 border-accent text-accent'
+                          : 'text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      Deposit
+                    </button>
+                    <button
+                      onClick={() => setActiveTab('withdraw')}
+                      className={`pb-3 text-sm font-semibold uppercase tracking-[0.2em] transition ${
+                        activeTab === 'withdraw'
+                          ? 'border-b-2 border-accent text-accent'
+                          : 'text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      Withdraw
+                    </button>
+                  </div>
+
+                  <div className="mt-6 space-y-4">
+                    {activeTab === 'deposit' ? (
+                      <>
+                        <div className="rounded-3xl bg-white/5 p-4">
+                          <p className="text-sm uppercase tracking-[0.25em] text-slate-400">Wallet Balance</p>
+                          <p className="mt-2 text-3xl font-semibold text-white">₦{walletBalance.toLocaleString()}</p>
+                        </div>
+                        <label className="grid gap-2">
+                          <span className="text-sm uppercase tracking-[0.25em] text-slate-400">Deposit amount</span>
+                          <input
+                            type="number"
+                            min={100}
+                            step={100}
+                            value={depositAmount}
+                            onChange={(event) => setDepositAmount(Number(event.target.value))}
+                            className="rounded-3xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none transition focus:border-accent"
+                            placeholder="Enter amount"
+                          />
+                        </label>
+                        <button
+                          disabled={isProcessing || !paystackPublicKey}
+                          onClick={() => handleDeposit(depositAmount)}
+                          className="w-full rounded-full bg-accent px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-accent2 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          {isProcessing ? 'Processing...' : `Deposit ₦${depositAmount.toLocaleString()}`}
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <div className="rounded-3xl bg-white/5 p-4">
+                          <p className="text-sm uppercase tracking-[0.25em] text-slate-400">Available to Withdraw</p>
+                          <p className="mt-2 text-3xl font-semibold text-white">₦{walletBalance.toLocaleString()}</p>
+                          <p className="mt-2 text-xs text-slate-400">Minimum: ₦100 • Processing: 24-48 hours</p>
+                        </div>
+                        <label className="grid gap-2">
+                          <span className="text-sm uppercase tracking-[0.25em] text-slate-400">Withdrawal amount</span>
+                          <input
+                            type="number"
+                            min={100}
+                            step={100}
+                            max={walletBalance}
+                            value={withdrawAmount}
+                            onChange={(event) => setWithdrawAmount(Number(event.target.value))}
+                            className="rounded-3xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none transition focus:border-accent"
+                            placeholder="Enter amount"
+                          />
+                        </label>
+                        <button
+                          disabled={isProcessing || withdrawAmount > walletBalance || withdrawAmount < 100}
+                          onClick={() => handleWithdraw(withdrawAmount)}
+                          className="w-full rounded-full bg-orange-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          {isProcessing ? 'Processing...' : `Request Withdrawal ₦${withdrawAmount.toLocaleString()}`}
+                        </button>
+                      </>
+                    )}
+
                     {statusMessage ? (
                       <p className="rounded-3xl bg-white/5 px-4 py-3 text-sm text-slate-200">{statusMessage}</p>
                     ) : null}
