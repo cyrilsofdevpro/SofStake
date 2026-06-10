@@ -1,5 +1,6 @@
 export const SESSION_STORAGE_USER_KEY = 'sofstake-session-user';
 export const LOCAL_STORAGE_USERS_KEY = 'sofstake-users';
+export const LOCAL_STORAGE_TRANSACTIONS_KEY = 'sofstake-transactions';
 
 export type StoredUser = {
   id: string;
@@ -209,11 +210,38 @@ export function addTransaction(
   };
 
   saveStoredUser(updatedUser);
+  
+  // Also save transaction to localStorage for persistence
+  if (typeof window !== 'undefined') {
+    try {
+      const stored = window.localStorage.getItem(LOCAL_STORAGE_TRANSACTIONS_KEY);
+      const transactions: Transaction[] = stored ? JSON.parse(stored) : [];
+      transactions.unshift(transaction);
+      window.localStorage.setItem(LOCAL_STORAGE_TRANSACTIONS_KEY, JSON.stringify(transactions));
+    } catch (e) {
+      console.warn('Failed to persist transaction to localStorage:', e);
+    }
+  }
+  
   updateLeaderboard(updatedUser);
   return updatedUser;
 }
 
 export function getTransactionHistory(limit: number = 20): Transaction[] {
+  if (typeof window === 'undefined') return [];
+  
+  try {
+    // Try to get from localStorage first (persisted transactions)
+    const storedTransactions = window.localStorage.getItem(LOCAL_STORAGE_TRANSACTIONS_KEY);
+    if (storedTransactions) {
+      const transactions: Transaction[] = JSON.parse(storedTransactions);
+      return transactions.slice(0, limit);
+    }
+  } catch (e) {
+    console.warn('Failed to retrieve transactions from localStorage:', e);
+  }
+  
+  // Fallback to session storage
   const user = getStoredUser();
   if (!user || !user.transactions) return [];
   return user.transactions.slice(0, limit);

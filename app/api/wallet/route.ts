@@ -89,6 +89,66 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: 'Purchase completed', sof, usd, sofBalance: newSofBalance });
     }
 
+    if (action === 'sell_sof') {
+      const { sofAmount, nairaAmount } = body as any;
+      if (typeof sofAmount !== 'number' || sofAmount <= 0) {
+        return NextResponse.json({ error: 'sofAmount required' }, { status: 400 });
+      }
+
+      if (sofAmount < 2) {
+        return NextResponse.json({ error: 'Minimum sell amount is 2 SOF' }, { status: 400 });
+      }
+
+      if (Number(wallet.sofBalance ?? 0) < sofAmount) {
+        return NextResponse.json({ error: 'Insufficient SOF balance' }, { status: 402 });
+      }
+
+      const currentNairaBalance = Number(wallet.usdBalance ?? 0); // Assuming usdBalance stores NGN equivalent
+      const newSofBalance = Number(wallet.sofBalance ?? 0) - sofAmount;
+      const newNairaBalance = currentNairaBalance + (nairaAmount ?? 0);
+
+      await prisma.$transaction([
+        prisma.wallet.update({
+          where: { id: wallet.id },
+          data: {
+            sofBalance: newSofBalance,
+            usdBalance: newNairaBalance,
+          },
+        }),
+        prisma.ledgerEntry.create({
+          data: {
+            walletId: wallet.id,
+            type: 'deposit',
+            amount: nairaAmount ?? 0,
+            currency: 'NGN',
+            balanceBefore: currentNairaBalance,
+            balanceAfter: newNairaBalance,
+            source: 'sof_sale',
+            reference: `sof_sale_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+            metadata: JSON.stringify({ sofAmount }),
+          },
+        }),
+        prisma.walletTransaction.create({
+          data: {
+            userId,
+            type: 'deposit',
+            amount: nairaAmount ?? 0,
+            status: 'completed',
+            reference: `sof_sale_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+            metadata: JSON.stringify({ sofAmount }),
+          },
+        }),
+      ]);
+
+      return NextResponse.json({
+        message: 'SOF sold successfully',
+        sofAmount,
+        nairaAmount,
+        newSofBalance,
+        newNairaBalance,
+      });
+    }
+
     if (action === 'withdraw') {
       const { amountSof } = body as any;
       if (typeof amountSof !== 'number' || amountSof <= 0) {

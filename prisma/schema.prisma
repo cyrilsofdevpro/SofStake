@@ -95,6 +95,7 @@ model User {
   crashBets            CrashBet[] @relation("CrashBetUser")
   coinFlipGames        CoinFlipGame[] @relation("CoinFlipGameUser")
   gameHistory          GameHistory[] @relation("GameHistoryUser")
+  cryptoBets           CryptoBet[] @relation("CryptoBetUser")
 
   @@index([email])
   @@index([createdAt])
@@ -462,5 +463,29 @@ model GameHistory {
 
   @@index([userId])
   @@index([gameType])
+  @@index([createdAt])
+}
+
+model CryptoBet {
+  id              String   @id @default(cuid())
+  user            User     @relation("CryptoBetUser", fields: [userId], references: [id], onDelete: Cascade)
+  userId          String
+  pairAddress     String   // DexScreener token pair address
+  direction       String   // UP or DOWN
+  stake           Decimal  @db.Decimal(30, 10)
+  windowMinutes   Int
+  entryPrice      Decimal  @db.Decimal(30, 10)
+  currentPrice    Decimal? @db.Decimal(30, 10)
+  resultPrice     Decimal? @db.Decimal(30, 10)
+  payout          Decimal  @default(0) @db.Decimal(30, 10)
+  status          String   @default("open") // open, resolved
+  outcome         String?  // WIN, LOSS, TIE
+  createdAt       DateTime @default(now())
+  resolveAt       DateTime
+  resolvedAt      DateTime?
+
+  @@index([userId])
+  @@index([pairAddress])
+  @@index([status])
   @@index([createdAt])
 }
