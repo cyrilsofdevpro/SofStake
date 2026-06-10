@@ -403,22 +403,6 @@ model CrashBet {
   @@index([createdAt])
 }
 
-model GameHistory {
-  id            String    @id @default(cuid())
-  userId        String
-  gameType      String
-  roundId       String
-  betAmount     Decimal   @db.Decimal(30, 10)
-  payout        Decimal   @db.Decimal(30, 10)
-  winAmount     Decimal   @db.Decimal(30, 10)
-  multiplier    Decimal   @db.Decimal(10, 2)
-  status        String
-  createdAt     DateTime  @default(now())
-
-  @@index([userId])
-  @@index([gameType])
-  @@index([createdAt])
-}
 
 model WithdrawalTransaction {
   id                String   @id @default(cuid())
