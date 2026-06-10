@@ -106,7 +106,8 @@ io.on('connection', (socket) => {
     }
 
     const user = await prisma.user.findUnique({ where: { id: userId } });
-    if (!user || user.walletBalance < stake) {
+    const userWalletBalance = Number(user?.walletBalance ?? 0);
+    if (!user || userWalletBalance < stake) {
       socket.emit('match_error', { message: 'Insufficient wallet balance or user not found.' });
       return;
     }
@@ -240,7 +241,8 @@ io.on('connection', (socket) => {
 
   socket.on('aviator_start_round', async ({ userId, stake }: { userId: string; stake: number }) => {
     const user = await prisma.user.findUnique({ where: { id: userId } });
-    if (!user || user.walletBalance < stake) {
+    const userWalletBalance = Number(user?.walletBalance ?? 0);
+    if (!user || userWalletBalance < stake) {
       socket.emit('match_error', { message: 'Insufficient balance.' });
       return;
     }
