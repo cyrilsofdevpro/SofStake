@@ -427,7 +427,6 @@ export default function WalletPage() {
                 </div>
               ) : null}
             </>
-            </>
           )}
         </div>
       </div>
