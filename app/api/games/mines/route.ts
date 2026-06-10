@@ -74,8 +74,8 @@ export async function GET(request: NextRequest) {
       });
 
       const totalGames = games.length;
-      const wonGames = games.filter((g) => g.status === 'won').length;
-      const lostGames = games.filter((g) => g.status === 'lost').length;
+      const wonGames = games.filter((g) => g.result === 'won').length;
+      const lostGames = games.filter((g) => g.result === 'lost').length;
       const totalBet = games.reduce((sum, g) => sum + Number(g.betAmount), 0);
       const totalPayout = games.reduce((sum, g) => sum + Number(g.payout), 0);
       const profit = totalPayout - totalBet;
@@ -182,7 +182,7 @@ export async function POST(request: NextRequest) {
       await db.transaction.create({
         data: {
           userId,
-          type: 'bet',
+          type: 'BET',
           amount: -betAmount,
           status: 'completed',
           metadata: { gameType: 'mines', roundId: round.id }
@@ -247,13 +247,13 @@ export async function POST(request: NextRequest) {
           data: {
             userId,
             gameType: 'mines',
-            roundId,
             betAmount: metadata.betAmount,
             payout: 0,
             winAmount: 0,
             result: 'lost',
             multiplier: 0,
             metadata: {
+              roundId,
               gridSize: metadata.gridSize,
               mineCount: metadata.mineCount,
               picks: updatedPicks
@@ -343,7 +343,7 @@ export async function POST(request: NextRequest) {
       await db.transaction.create({
         data: {
           userId,
-          type: 'reward',
+          type: 'REWARD',
           amount: payout,
           status: 'completed',
           metadata: { gameType: 'mines', roundId }
@@ -370,13 +370,13 @@ export async function POST(request: NextRequest) {
         data: {
           userId,
           gameType: 'mines',
-          roundId,
           betAmount: metadata.betAmount,
           payout,
           winAmount,
           result: 'won',
           multiplier,
           metadata: {
+            roundId,
             gridSize: metadata.gridSize,
             mineCount: metadata.mineCount,
             picks: metadata.picks

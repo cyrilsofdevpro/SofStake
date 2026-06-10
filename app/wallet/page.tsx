@@ -77,7 +77,7 @@ export default function WalletPage() {
         setSofBalance(Number(data.sofBalance) || 0);
       } catch (error) {
         console.error('Failed to fetch SOF balance:', error);
-        setSofBalance(storedUser?.sofBalance || 0);
+        setSofBalance(storedUser?.walletBalance || 0);
       }
     };
     fetchSofBalance();

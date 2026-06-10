@@ -75,8 +75,8 @@ export async function POST(request: NextRequest) {
         walletId: user.wallet.id,
         type: 'withdraw_request',
         amount: -amount,
-        balanceBefore: user.wallet.balance,
-        balanceAfter: user.wallet.balance.minus(amount),
+        balanceBefore: user.wallet.sofBalance,
+        balanceAfter: user.wallet.sofBalance.minus(amount),
         status: 'pending',
         reference,
         metadata: {

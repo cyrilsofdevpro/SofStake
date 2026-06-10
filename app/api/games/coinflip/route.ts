@@ -33,8 +33,9 @@ export async function POST(request: NextRequest) {
       where: { id: userId },
       include: { wallet: true }
     });
+    const wallet = user?.wallet;
 
-    if (!user || !user.wallet) {
+    if (!user || !wallet) {
       return NextResponse.json(
         { error: 'User not found' },
         { status: 404 }
@@ -107,10 +108,12 @@ export async function POST(request: NextRequest) {
         });
       }
 
+      const walletId = wallet.id;
+
       // Create ledger entry for bet deduction
       await tx.ledgerEntry.create({
         data: {
-          walletId: user.wallet.id,
+          walletId,
           type: won ? 'stake_release' : 'stake_lock',
           amount: won ? payout : -betAmount,
           balanceBefore: user.walletBalance,
@@ -129,7 +132,7 @@ export async function POST(request: NextRequest) {
       const transaction = await tx.transaction.create({
         data: {
           userId,
-          type: won ? 'win' : 'loss',
+          type: won ? 'REWARD' : 'BET',
           amount: won ? payout : -betAmount,
           status: 'completed',
           metadata: {

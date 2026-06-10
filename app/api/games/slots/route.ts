@@ -205,7 +205,7 @@ export async function POST(request: NextRequest) {
     await db.transaction.create({
       data: {
         userId,
-        type: 'bet',
+        type: 'BET',
         amount: -betAmount,
         status: 'completed',
         metadata: { gameType: 'slot', roundId: round.id }
@@ -214,11 +214,13 @@ export async function POST(request: NextRequest) {
 
     if (payout > 0) {
       await db.transaction.create({
-        userId,
-        type: 'win',
-        amount: payout,
-        status: 'completed',
-        metadata: { gameType: 'slot', roundId: round.id, multiplier }
+        data: {
+          userId,
+          type: 'REWARD',
+          amount: payout,
+          status: 'completed',
+          metadata: { gameType: 'slot', roundId: round.id, multiplier }
+        }
       });
     }
 

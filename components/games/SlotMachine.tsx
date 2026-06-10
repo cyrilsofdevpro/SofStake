@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import Phaser from 'phaser';
+import type { Game } from 'phaser';
 import { getStoredUser, addTransaction, StoredUser } from '@/lib/user';
 import { spinSlot } from '@/lib/games/slots';
 
@@ -128,8 +128,8 @@ export default function SlotMachine() {
   const [payout, setPayout] = useState(0);
   const [multiplier, setMultiplier] = useState(1);
   const [error, setError] = useState('');
-  const gameRef = useRef<Phaser.Game | null>(null);
-  const sceneRef = useRef<SlotMachineScene | null>(null);
+  const gameRef = useRef<Game | null>(null);
+  const sceneRef = useRef<any | null>(null);
 
   const canSpin = Boolean(user && betAmount >= 50 && betAmount <= balance && !isSpinning);
 
@@ -144,20 +144,126 @@ export default function SlotMachine() {
   useEffect(() => {
     if (gameRef.current) return;
 
-    const config: Phaser.Types.Core.GameConfig = {
-      type: Phaser.AUTO,
-      parent: 'slot-machine-canvas',
-      width: 760,
-      height: 520,
-      backgroundColor: '#0f172a',
-      scene: SlotMachineScene
-    };
+    let isMounted = true;
 
-    gameRef.current = new Phaser.Game(config);
-    gameRef.current.scene.add('SlotMachineScene', SlotMachineScene, true);
-    sceneRef.current = gameRef.current.scene.getScene('SlotMachineScene') as SlotMachineScene;
+    async function initPhaser() {
+      const PhaserModule = await import('phaser');
+      const Phaser = PhaserModule as typeof import('phaser');
+
+      if (!isMounted) return;
+
+      class SlotMachineScene extends Phaser.Scene {
+        public reels: Phaser.GameObjects.Text[][] = [];
+        private statusText?: Phaser.GameObjects.Text;
+
+        constructor() {
+          super({ key: 'SlotMachineScene' });
+        }
+
+        create() {
+          const width = 760;
+          const height = 520;
+          this.cameras.main.setBackgroundColor('#111827');
+
+          const panel = this.add.rectangle(width / 2, 90, width - 48, 140, 0x0f172a, 0.65);
+          panel.setStrokeStyle(2, 0x22d3ee, 0.4);
+
+          this.statusText = this.add.text(width / 2, 90, 'Ready to spin', {
+            fontFamily: 'Arial',
+            fontSize: '24px',
+            color: '#ffffff'
+          }).setOrigin(0.5);
+
+          const startX = 100;
+          const startY = 200;
+          const cellSize = 120;
+
+          for (let reel = 0; reel < 5; reel += 1) {
+            const reelColumn: Phaser.GameObjects.Text[] = [];
+            for (let row = 0; row < 3; row += 1) {
+              const x = startX + reel * (cellSize + 10);
+              const y = startY + row * (cellSize + 10);
+              const slotBox = this.add.rectangle(x, y, cellSize, cellSize, 0x0f172a);
+              slotBox.setStrokeStyle(2, 0x38bdf8, 0.35);
+
+              const text = this.add.text(x, y, getRandomSymbol(), {
+                fontFamily: 'Arial',
+                fontSize: '44px',
+                color: '#f8fafc'
+              }).setOrigin(0.5);
+
+              reelColumn.push(text);
+            }
+            this.reels.push(reelColumn);
+          }
+
+          this.add.text(width / 2, height - 40, 'Server-driven slot engine with RTP and paylines', {
+            fontFamily: 'Arial',
+            fontSize: '18px',
+            color: '#94a3b8'
+          }).setOrigin(0.5);
+        }
+
+        updateStatus(message: string) {
+          if (this.statusText) {
+            this.statusText.setText(message);
+          }
+        }
+
+        animateSpin(finalGrid: string[][], onComplete: () => void) {
+          if (!this.reels.length) {
+            onComplete();
+            return;
+          }
+
+          const reelCount = this.reels.length;
+          let finishedReels = 0;
+
+          for (let reelIndex = 0; reelIndex < reelCount; reelIndex += 1) {
+            const reel = this.reels[reelIndex];
+            const finalSymbols = finalGrid.map((row) => formatSymbol(row[reelIndex]));
+            const spins = 18 + reelIndex * 6;
+            let currentSpin = 0;
+
+            const timer = this.time.addEvent({
+              delay: 60,
+              repeat: spins,
+              callback: () => {
+                reel.forEach((text) => text.setText(getRandomSymbol()));
+                currentSpin += 1;
+
+                if (currentSpin > spins) {
+                  reel.forEach((text, row) => text.setText(finalSymbols[row]));
+                  finishedReels += 1;
+                  if (finishedReels === reelCount) {
+                    onComplete();
+                  }
+                  timer.remove(false);
+                }
+              }
+            });
+          }
+        }
+      }
+
+      const config: Phaser.Types.Core.GameConfig = {
+        type: Phaser.AUTO,
+        parent: 'slot-machine-canvas',
+        width: 760,
+        height: 520,
+        backgroundColor: '#0f172a',
+        scene: SlotMachineScene
+      };
+
+      const game = new Phaser.Game(config);
+      gameRef.current = game;
+      sceneRef.current = game.scene.getScene('SlotMachineScene') as any;
+    }
+
+    initPhaser();
 
     return () => {
+      isMounted = false;
       if (gameRef.current) {
         gameRef.current.destroy(true);
         gameRef.current = null;

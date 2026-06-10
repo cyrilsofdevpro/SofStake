@@ -263,8 +263,9 @@ export async function POST(request: NextRequest) {
       }
 
       // Calculate winnings
-      const multiplier = round.multiplier;
-      const winAmount = Math.floor(bet.betAmount * multiplier);
+      const multiplier = Number(round.multiplier);
+      const betAmount = Number(bet.betAmount);
+      const winAmount = Math.floor(betAmount * multiplier);
 
       // Update bet
       const updatedBet = await db.crashBet.update({
@@ -273,7 +274,7 @@ export async function POST(request: NextRequest) {
           status: 'cashed_out',
           manualCashout: multiplier,
           payout: winAmount,
-          winAmount: winAmount - bet.betAmount,
+          winAmount: winAmount - betAmount,
           cashedOutAt: new Date()
         }
       });
@@ -301,7 +302,7 @@ export async function POST(request: NextRequest) {
       await db.transaction.create({
         data: {
           userId,
-          type: 'win',
+          type: 'REWARD',
           amount: winAmount,
           status: 'completed',
           metadata: {
@@ -335,12 +336,14 @@ export async function POST(request: NextRequest) {
         data: {
           userId,
           gameType: 'crash',
-          roundId,
           betAmount: bet.betAmount,
           payout: winAmount,
-          winAmount: winAmount - bet.betAmount,
+          winAmount: winAmount - Number(bet.betAmount),
           multiplier,
-          status: 'won'
+          result: 'won',
+          metadata: {
+            roundId
+          }
         }
       });
 
@@ -350,7 +353,7 @@ export async function POST(request: NextRequest) {
         data: {
           multiplier,
           betAmount: bet.betAmount,
-          winAmount: winAmount - bet.betAmount,
+          winAmount: winAmount - Number(bet.betAmount),
           totalPayout: winAmount
         }
       });

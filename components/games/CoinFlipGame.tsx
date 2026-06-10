@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import Phaser from 'phaser';
+import type { Game } from 'phaser';
 import { getStoredUser, addTransaction, StoredUser } from '@/lib/user';
 
 interface CoinFlipProps {
@@ -9,7 +9,7 @@ interface CoinFlipProps {
 }
 
 export default function CoinFlipGame({ onGameComplete }: CoinFlipProps) {
-  const gameRef = useRef<Phaser.Game | null>(null);
+  const gameRef = useRef<Game | null>(null);
   const sceneRef = useRef<any>(null);
   const [user, setUser] = useState<StoredUser | null>(null);
   const [choice, setChoice] = useState<'heads' | 'tails' | null>(null);
@@ -64,50 +64,61 @@ export default function CoinFlipGame({ onGameComplete }: CoinFlipProps) {
   useEffect(() => {
     if (gameRef.current || !choice) return;
 
-    class CoinFlipScene extends Phaser.Scene {
-      private coin?: Phaser.GameObjects.Arc;
+    let isMounted = true;
 
-      constructor() {
-        super({ key: 'CoinFlipScene' });
-      }
+    async function initPhaser() {
+      const PhaserModule = await import('phaser');
+      const Phaser = PhaserModule as typeof import('phaser');
+      if (!isMounted) return;
 
-      preload() {
-        // No external assets required for this simple coin demo.
-      }
+      class CoinFlipScene extends Phaser.Scene {
+        private coin?: Phaser.GameObjects.Arc;
 
-      create() {
-        const coin = this.add.circle(150, 150, 75, 0xffd700);
-        coin.setStrokeStyle(4, 0xffaa00);
-        coin.setDepth(1);
+        constructor() {
+          super({ key: 'CoinFlipScene' });
+        }
 
-        this.add.text(150, 150, choice === 'heads' ? 'H' : 'T', {
-          font: 'bold 48px Arial',
-          color: '#000000',
-          align: 'center'
-        }).setOrigin(0.5);
+        preload() {
+          // No external assets required for this simple coin demo.
+        }
 
-        this.coin = coin;
-      }
+        create() {
+          const coin = this.add.circle(150, 150, 75, 0xffd700);
+          coin.setStrokeStyle(4, 0xffaa00);
+          coin.setDepth(1);
 
-      update() {
-        if (this.coin) {
-          this.coin.rotation += 0.05;
+          this.add.text(150, 150, choice === 'heads' ? 'H' : 'T', {
+            font: 'bold 48px Arial',
+            color: '#000000',
+            align: 'center'
+          }).setOrigin(0.5);
+
+          this.coin = coin;
+        }
+
+        update() {
+          if (this.coin) {
+            this.coin.rotation += 0.05;
+          }
         }
       }
+
+      const config: Phaser.Types.Core.GameConfig = {
+        type: Phaser.AUTO,
+        parent: 'coin-flip-canvas',
+        width: 300,
+        height: 300,
+        backgroundColor: '#1e293b',
+        scene: CoinFlipScene
+      };
+
+      gameRef.current = new Phaser.Game(config);
     }
 
-    const config: Phaser.Types.Core.GameConfig = {
-      type: Phaser.AUTO,
-      parent: 'coin-flip-canvas',
-      width: 300,
-      height: 300,
-      backgroundColor: '#1e293b',
-      scene: CoinFlipScene
-    };
-
-    gameRef.current = new Phaser.Game(config);
+    initPhaser();
 
     return () => {
+      isMounted = false;
       if (gameRef.current) {
         gameRef.current.destroy(true);
         gameRef.current = null;
