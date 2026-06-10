@@ -145,6 +145,12 @@ export default function DashboardPage() {
                   Play Now
                 </Link>
                 <Link
+                  href="/crypto-betting"
+                  className="inline-flex items-center justify-center rounded-3xl bg-gradient-to-r from-amber-500 to-amber-400 px-4 sm:px-5 py-2 sm:py-3 text-xs sm:text-sm font-semibold text-slate-900 shadow-xl shadow-amber-900/20 transition hover:from-amber-600 hover:to-amber-500"
+                >
+                  Crypto Bets
+                </Link>
+                <Link
                   href="/wallet"
                   className="inline-flex items-center justify-center rounded-3xl border border-white/10 bg-white/5 px-4 sm:px-5 py-2 sm:py-3 text-xs sm:text-sm font-semibold text-slate-200 transition hover:bg-white/10"
                 >

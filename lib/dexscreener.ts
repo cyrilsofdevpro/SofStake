@@ -100,37 +100,50 @@ function normalizePairs(pairs: any[] = []) {
 }
 
 export async function fetchTrendingTokens(): Promise<NormalizedToken[]> {
-  const data = await cachedFetch<DexResponse>('dexscreener:trending', async () => {
-    const response = await fetch('https://api.dexscreener.com/latest/dex/trending');
-    if (!response.ok) {
-      throw new Error(`DexScreener trending request failed with ${response.status}`);
-    }
-    return response.json();
-  });
+  try {
+    const data = await cachedFetch<DexResponse>('dexscreener:trending', async () => {
+      const response = await fetch('https://api.dexscreener.com/latest/dex/trending');
+      if (!response.ok) {
+        throw new Error(`DexScreener trending request failed with ${response.status}`);
+      }
+      return response.json();
+    });
 
-  return normalizePairs(data.pairs).slice(0, 10);
+    return normalizePairs(data.pairs).slice(0, 10);
+  } catch (error) {
+    // Log and return empty list so UI can show fallback state instead of crashing
+    // eslint-disable-next-line no-console
+    console.error('DexScreener trending error:', error);
+    return [];
+  }
 }
 
 export async function searchTokens(query: string): Promise<NormalizedToken[]> {
   if (!query || query.trim().length === 0) return [];
   const cacheKey = `dexscreener:search:${query.trim().toLowerCase()}`;
-  const data = await cachedFetch<DexResponse>(cacheKey, async () => {
-    const response = await fetch(`https://api.dexscreener.com/latest/dex/search?q=${encodeURIComponent(query)}`);
-    if (!response.ok) {
-      throw new Error(`DexScreener search request failed with ${response.status}`);
-    }
-    return response.json();
-  });
+  try {
+    const data = await cachedFetch<DexResponse>(cacheKey, async () => {
+      const response = await fetch(`https://api.dexscreener.com/latest/dex/search?q=${encodeURIComponent(query)}`);
+      if (!response.ok) {
+        throw new Error(`DexScreener search request failed with ${response.status}`);
+      }
+      return response.json();
+    });
 
-  const normalized = normalizePairs(data.pairs);
-  const unique = new Map<string, NormalizedToken>();
-  normalized.forEach((item) => {
-    if (!unique.has(item.pairAddress)) {
-      unique.set(item.pairAddress, item);
-    }
-  });
+    const normalized = normalizePairs(data.pairs);
+    const unique = new Map<string, NormalizedToken>();
+    normalized.forEach((item) => {
+      if (!unique.has(item.pairAddress)) {
+        unique.set(item.pairAddress, item);
+      }
+    });
 
-  return Array.from(unique.values()).slice(0, 20);
+    return Array.from(unique.values()).slice(0, 20);
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('DexScreener search error:', error);
+    return [];
+  }
 }
 
 export async function getTokenPairs(address: string): Promise<NormalizedToken[]> {
@@ -139,14 +152,20 @@ export async function getTokenPairs(address: string): Promise<NormalizedToken[]>
   }
 
   const cacheKey = `dexscreener:token:${address.toLowerCase()}`;
-  const data = await cachedFetch<DexResponse>(cacheKey, async () => {
-    const normalizedAddress = address.trim();
-    const response = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${encodeURIComponent(normalizedAddress)}`);
-    if (!response.ok) {
-      throw new Error(`DexScreener token request failed with ${response.status}`);
-    }
-    return response.json();
-  });
+  try {
+    const data = await cachedFetch<DexResponse>(cacheKey, async () => {
+      const normalizedAddress = address.trim();
+      const response = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${encodeURIComponent(normalizedAddress)}`);
+      if (!response.ok) {
+        throw new Error(`DexScreener token request failed with ${response.status}`);
+      }
+      return response.json();
+    });
 
-  return normalizePairs(data.pairs).slice(0, 15);
+    return normalizePairs(data.pairs).slice(0, 15);
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('DexScreener token fetch error:', error);
+    return [];
+  }
 }
