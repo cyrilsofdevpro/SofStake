@@ -25,7 +25,6 @@ export default function GamePage() {
   const [state, setState] = useState<GameState>('idle');
   const [message, setMessage] = useState('Choose a game and stake to begin.');
   const [opponent, setOpponent] = useState('Rival');
-  const [result, setResult] = useState('');
   const [playerScore, setPlayerScore] = useState<number | null>(null);
   const [opponentScore, setOpponentScore] = useState<number | null>(null);
   const [isCrashGameOpen, setIsCrashGameOpen] = useState(false);
@@ -41,14 +40,16 @@ export default function GamePage() {
     setFriends(getFriends());
   }, [router]);
 
-  const canPlay = Boolean(user && stake >= 100 && stake <= user.walletBalance);
-
   const gameLabel = useMemo(() => {
     return gameType === 'dice' ? 'Dice Battle' : 'Wheel Game';
   }, [gameType]);
 
   const handleStartMatch = () => {
     if (!user) return;
+    if (user.walletBalance < 100) {
+      router.push('/wallet');
+      return;
+    }
     if (stake < 100) {
       setMessage('Minimum stake is ₦100.');
       return;
@@ -62,7 +63,6 @@ export default function GamePage() {
     setOpponent(matchOpponent);
     setState('searching');
     setMessage('Searching for an opponent...');
-    setResult('');
     setPlayerScore(null);
     setOpponentScore(null);
 
@@ -228,10 +228,10 @@ export default function GamePage() {
                   <button
                     type="button"
                     onClick={handleStartMatch}
-                    disabled={!canPlay || state === 'searching' || state === 'ready'}
+                    disabled={state === 'searching' || state === 'ready'}
                     className="rounded-full bg-accent px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-accent2 disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    Find match
+                    {(user?.walletBalance ?? 0) < 100 ? 'Open wallet' : 'Find match'}
                   </button>
                   <button
                     type="button"
@@ -293,8 +293,28 @@ export default function GamePage() {
               </Link>
             </div>
             <div className="rounded-[32px] border border-white/10 bg-slate-950/80 p-6 shadow-glow">
+              <p className="text-sm uppercase tracking-[0.35em] text-accent">Login streak</p>
+              <div className="mt-4 space-y-3 rounded-3xl bg-black/30 p-4 text-sm text-slate-200">
+                <p>Current streak: <span className="font-semibold text-white">{user?.loginStreak ?? 0} days</span></p>
+                <p>Daily reward: <span className="font-semibold text-accent">2 SOF</span></p>
+                <p>Reach 10 days to unlock a <span className="font-semibold text-yellow-400">20 SOF</span> streak bonus</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => router.push('/referrals')}
+                className="mt-5 inline-flex w-full justify-center rounded-full bg-accent px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-accent2"
+              >
+                Visit referrals
+              </button>
+            </div>
+            <div className="rounded-[32px] border border-white/10 bg-slate-950/80 p-6 shadow-glow">
               <p className="text-sm uppercase tracking-[0.35em] text-accent">Need more balance?</p>
-              <p className="mt-4 text-slate-300">Go to your wallet to deposit funds and get back into the game.</p>
+              <p className="mt-4 text-slate-300">No starting SOF balance is added by default. Earn rewards or deposit to play.</p>
+              <div className="mt-4 rounded-3xl bg-black/30 p-4 text-sm text-slate-200 space-y-2">
+                <p>Daily check-in: <span className="font-semibold text-accent">2 SOF</span></p>
+                <p>Referral bonus: <span className="font-semibold text-accent">2 SOF</span></p>
+                <p>10-day streak milestone: <span className="font-semibold text-accent">20 SOF</span></p>
+              </div>
               <button
                 type="button"
                 onClick={() => router.push('/wallet')}

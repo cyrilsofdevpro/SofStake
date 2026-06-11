@@ -89,7 +89,7 @@ export default function ReferralsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-slate-300">Current Streak: <span className="text-accent font-semibold">{user.loginStreak} days</span></p>
-                <p className="text-xs text-slate-500">Next bonus: ₦{user.loginStreak >= 6 ? '200' : user.loginStreak >= 2 ? '100' : '50'}</p>
+                <p className="text-xs text-slate-500">Next bonus: {user.loginStreak >= 10 ? '20 SOF' : user.loginStreak >= 7 ? '10 SOF' : user.loginStreak >= 3 ? '4 SOF' : '2 SOF'}</p>
               </div>
               <button
                 onClick={handleClaimDailyBonus}
@@ -103,7 +103,7 @@ export default function ReferralsPage() {
               <div className={`mt-4 p-3 rounded-lg ${dailyBonus.success ? 'bg-green-950/50 border border-green-500/20' : 'bg-red-950/50 border border-red-500/20'}`}>
                 {dailyBonus.success ? (
                   <p className="text-green-400 text-sm">
-                    🎉 Claimed ₦{dailyBonus.amount}! {dailyBonus.streak! > 1 ? `${dailyBonus.streak}-day streak bonus!` : 'Daily bonus claimed!'}
+                    🎉 Claimed {dailyBonus.amount} SOF! {dailyBonus.streak! > 1 ? `${dailyBonus.streak}-day streak bonus!` : 'Daily bonus claimed!'}
                   </p>
                 ) : (
                   <p className="text-red-400 text-sm">Already claimed today. Come back tomorrow!</p>
@@ -158,7 +158,7 @@ export default function ReferralsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-slate-400">Referral Earnings</p>
-                  <p className="text-2xl font-bold text-green-400">₦{stats.referralEarnings.toLocaleString()}</p>
+                  <p className="text-2xl font-bold text-green-400">{stats.referralEarnings.toLocaleString()} SOF</p>
                 </div>
                 <div className="text-3xl">💰</div>
               </div>
@@ -168,7 +168,7 @@ export default function ReferralsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-slate-400">Total Bonus Earnings</p>
-                  <p className="text-2xl font-bold text-yellow-400">₦{user.totalBonusEarnings.toLocaleString()}</p>
+                  <p className="text-2xl font-bold text-yellow-400">{user.totalBonusEarnings.toLocaleString()} SOF</p>
                 </div>
                 <div className="text-3xl">🎁</div>
               </div>
@@ -185,7 +185,7 @@ export default function ReferralsPage() {
               </div>
               <div className="flex items-start gap-3">
                 <div className="rounded-full bg-accent/20 text-accent w-6 h-6 flex items-center justify-center text-xs font-bold">2</div>
-                <p>When they sign up using your code, you both get ₦500 bonus</p>
+                <p>When they sign up using your code, you both get 2 SOF bonus</p>
               </div>
               <div className="flex items-start gap-3">
                 <div className="rounded-full bg-accent/20 text-accent w-6 h-6 flex items-center justify-center text-xs font-bold">3</div>

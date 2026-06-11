@@ -1,111 +1,52 @@
 'use client';
 
-import React, { useState } from 'react';
-import { NormalizedToken } from '@/lib/dexscreener';
-import TrendingTokens from '@/components/crypto/TrendingTokens';
-import TokenSearch from '@/components/crypto/TokenSearch';
-import CryptoBettingGame from '@/components/crypto/CryptoBettingGame';
-import BettingHistory from '@/components/crypto/BettingHistory';
+import React from 'react';
+import Link from 'next/link';
 
 export default function CryptoBettingPage() {
-  const [selectedToken, setSelectedToken] = useState<NormalizedToken | null>(null);
-  const [activeTab, setActiveTab] = useState<'discover' | 'history'>('discover');
-
   return (
-    <main className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-900 p-4 sm:p-6 lg:p-8">
-      <div className="mx-auto max-w-7xl space-y-8">
-        {/* Header */}
-        <div className="space-y-2 text-center">
-          <h1 className="bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-4xl font-bold text-transparent sm:text-5xl">
-            🎰 Crypto Betting Arena
-          </h1>
-          <p className="text-gray-400">
-            Predict token price movements and earn rewards
-          </p>
+    <main className="min-h-screen bg-gradient-to-b from-slate-950 to-slate-900 p-6">
+      <div className="mx-auto max-w-4xl rounded-[32px] border border-purple-500/20 bg-slate-900/80 p-10 text-center shadow-2xl shadow-purple-500/10 backdrop-blur-md">
+        <div className="mb-6 inline-flex rounded-full bg-purple-500/10 px-4 py-2 text-sm font-semibold text-purple-200">
+          🚧 Coming Soon
+        </div>
+        <h1 className="text-5xl font-bold text-white sm:text-6xl">Crypto Betting Arena</h1>
+        <p className="mt-4 max-w-2xl mx-auto text-lg text-slate-400">
+          The crypto betting experience is being polished right now. For the best live action,
+          focus on the game betting arena and stay tuned for this feature soon.
+        </p>
+
+        <div className="mt-10 grid gap-4 sm:grid-cols-2">
+          <Link
+            href="/game"
+            className="rounded-2xl bg-gradient-to-r from-violet-500 to-fuchsia-500 px-6 py-4 text-sm font-semibold text-slate-950 transition hover:scale-[1.01]"
+          >
+            Go to Game Betting
+          </Link>
+          <Link
+            href="/dashboard"
+            className="rounded-2xl border border-white/10 bg-white/5 px-6 py-4 text-sm font-semibold text-white transition hover:border-purple-400/40"
+          >
+            Back to Dashboard
+          </Link>
         </div>
 
-        {/* Tab Navigation */}
-        <div className="flex gap-4 border-b border-purple-500/20">
-          <button
-            onClick={() => setActiveTab('discover')}
-            className={`px-4 py-2 transition ${
-              activeTab === 'discover'
-                ? 'border-b-2 border-purple-500 text-purple-400'
-                : 'text-gray-400 hover:text-gray-300'
-            }`}
-          >
-            Discover & Bet
-          </button>
-          <button
-            onClick={() => setActiveTab('history')}
-            className={`px-4 py-2 transition ${
-              activeTab === 'history'
-                ? 'border-b-2 border-purple-500 text-purple-400'
-                : 'text-gray-400 hover:text-gray-300'
-            }`}
-          >
-            My History
-          </button>
-        </div>
-
-        {/* Main Content */}
-        {activeTab === 'discover' ? (
-          <div className="grid gap-8 lg:grid-cols-3">
-            {/* Left: Trending & Search */}
-            <div className="space-y-6 lg:col-span-2">
-              <TrendingTokens onSelectToken={setSelectedToken} />
-
-              <div className="rounded-lg border border-purple-500/30 bg-gradient-to-br from-slate-900/50 to-slate-800/50 p-6 backdrop-blur">
-                <TokenSearch
-                  onSelectToken={setSelectedToken}
-                  showLabel={true}
-                />
-              </div>
-            </div>
-
-            {/* Right: Betting Game */}
-            <div>
-              <CryptoBettingGame
-                token={selectedToken}
-                onBack={selectedToken ? () => setSelectedToken(null) : undefined}
-              />
-            </div>
+        <div className="mt-10 grid gap-4 sm:grid-cols-3">
+          <div className="rounded-3xl bg-white/5 p-5 text-left">
+            <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Why hold</p>
+            <p className="mt-3 text-sm text-slate-300">We’re pausing crypto betting so we can focus on game betting stability first.</p>
           </div>
-        ) : (
-          <BettingHistory />
-        )}
-
-        {/* Footer Info */}
-        <div className="grid gap-4 sm:grid-cols-3">
-          <div className="rounded-lg border border-purple-500/20 bg-slate-900/50 p-4">
-            <div className="text-xs text-gray-400">How it Works</div>
-            <ul className="mt-2 space-y-1 text-xs text-gray-300">
-              <li>✓ Select a token</li>
-              <li>✓ Predict UP or DOWN</li>
-              <li>✓ Choose time window</li>
-              <li>✓ Wait for result</li>
-            </ul>
+          <div className="rounded-3xl bg-white/5 p-5 text-left">
+            <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Live games</p>
+            <p className="mt-3 text-sm text-slate-300">Dice, wheel, crash and more are already available in the game arena.</p>
           </div>
-
-          <div className="rounded-lg border border-purple-500/20 bg-slate-900/50 p-4">
-            <div className="text-xs text-gray-400">Payout Structure</div>
-            <ul className="mt-2 space-y-1 text-xs text-gray-300">
-              <li>📈 Win: 1.8x stake</li>
-              <li>📉 Lose: -stake</li>
-              <li>⚖️ Tie: Return stake</li>
-            </ul>
-          </div>
-
-          <div className="rounded-lg border border-purple-500/20 bg-slate-900/50 p-4">
-            <div className="text-xs text-gray-400">Risk Score</div>
-            <ul className="mt-2 space-y-1 text-xs text-gray-300">
-              <li>🟢 LOW: Safe</li>
-              <li>🟡 MEDIUM: Caution</li>
-              <li>🔴 HIGH/EXTREME: Risky</li>
-            </ul>
+          <div className="rounded-3xl bg-white/5 p-5 text-left">
+            <p className="text-xs uppercase tracking-[0.3em] text-slate-500">Stay tuned</p>
+            <p className="mt-3 text-sm text-slate-300">Crypto betting will return once the feature is production-ready.</p>
           </div>
         </div>
       </div>
     </main>
   );
 }
+

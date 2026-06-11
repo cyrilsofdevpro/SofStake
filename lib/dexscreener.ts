@@ -92,7 +92,7 @@ function normalizePair(pair: any): NormalizedToken {
   };
 }
 
-function normalizePairs(pairs: any[] = []) {
+export function normalizePairs(pairs: any[] = []) {
   return pairs
     .filter((pair) => pair && (pair.pairAddress || pair.address))
     .map(normalizePair)

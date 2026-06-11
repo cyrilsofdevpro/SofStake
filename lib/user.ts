@@ -45,6 +45,17 @@ export type Transaction = {
 type TransactionType = Transaction['type'];
 type TransactionStatus = Transaction['status'];
 
+const DAILY_LOGIN_REWARD = 2;
+const REFERRAL_BONUS = 2;
+const REFERRAL_SIGNUP_BONUS = 2;
+
+function bonusForStreak(streak: number) {
+  if (streak >= 10) return 20;
+  if (streak >= 7) return 10;
+  if (streak >= 3) return 4;
+  return DAILY_LOGIN_REWARD;
+}
+
 function isTransactionType(value: any): value is TransactionType {
   return typeof value === 'string' && [
     'deposit',
@@ -266,7 +277,7 @@ export function checkDailyLoginReward(): StoredUser | null {
   const lastLogin = new Date(user.lastLogin).toDateString();
 
   if (lastLogin !== today) {
-    const reward = 50; // Daily login reward
+    const reward = DAILY_LOGIN_REWARD;
     const updatedUser = {
       ...user,
       walletBalance: user.walletBalance + reward,
@@ -427,8 +438,8 @@ export function processReferral(referralCode: string, newUserId: string): boolea
   const referredSet = new Set(referrer.referrals);
   referredSet.add(newUserId);
 
-  const referralBonus = 500; // ₦500 for referrer
-  const signupBonus = 300; // ₦300 for new user
+  const referralBonus = REFERRAL_BONUS;
+  const signupBonus = REFERRAL_SIGNUP_BONUS;
 
   const newUser = allUsers.find(user => user.id === newUserId);
   if (!newUser) return false;
@@ -482,7 +493,7 @@ export function giveReferralBonus(referrerId: string, newUserId: string): void {
   const referrer = getAllUsers().find(user => user.id === referrerId);
   if (!referrer) return;
 
-  const bonusAmount = 500; // ₦500 referral bonus
+  const bonusAmount = REFERRAL_BONUS;
   const updatedReferrer = {
     ...referrer,
     walletBalance: referrer.walletBalance + bonusAmount,
@@ -522,7 +533,7 @@ export function claimDailyBonus(): { success: boolean; amount?: number; streak?:
   }
 
   // Calculate bonus based on login streak
-  let bonusAmount = 50; // Base daily bonus
+  let bonusAmount = DAILY_LOGIN_REWARD;
   let newStreak = 1;
 
   // Check if yesterday was claimed (for streak)
@@ -532,9 +543,7 @@ export function claimDailyBonus(): { success: boolean; amount?: number; streak?:
 
   if (lastClaim === yesterdayStr) {
     newStreak = user.loginStreak + 1;
-    // Bonus multiplier for streaks
-    if (newStreak >= 7) bonusAmount = 200; // Week streak
-    else if (newStreak >= 3) bonusAmount = 100; // 3-day streak
+    bonusAmount = bonusForStreak(newStreak);
   }
 
   const updatedUser = {

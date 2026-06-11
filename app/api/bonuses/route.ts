@@ -42,7 +42,7 @@ export async function POST(request: Request) {
 
     // Calculate streak and bonus amount
     let streak = user.loginStreak || 0;
-    let bonusAmount = 50; // Base amount
+    let bonusAmount = 2; // Base amount
 
     if (user.lastBonusClaim) {
       const lastClaim = new Date(user.lastBonusClaim);
@@ -59,11 +59,13 @@ export async function POST(request: Request) {
       streak = 1;
     }
 
-    // Apply streak multipliers
-    if (streak >= 7) {
-      bonusAmount = 200;
+    // Apply streak rewards
+    if (streak >= 10) {
+      bonusAmount = 20;
+    } else if (streak >= 7) {
+      bonusAmount = 10;
     } else if (streak >= 3) {
-      bonusAmount = 100;
+      bonusAmount = 4;
     }
 
     // Update user

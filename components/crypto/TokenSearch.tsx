@@ -32,15 +32,46 @@ export default function TokenSearch({
         setLoading(true);
         setError(null);
         const res = await fetch(
-          `/api/crypto/search?q=${encodeURIComponent(query)}`
+          `https://api.dexscreener.com/latest/dex/search?q=${encodeURIComponent(query)}`
         );
+        if (!res.ok) throw new Error(`DexScreener ${res.status}`);
         const data = await res.json();
 
-        if (!data.success) {
-          throw new Error(data.error || 'Search failed');
-        }
+        const pairs = data?.pairs ?? [];
+        const normalized = pairs
+          .map((pair: any) => {
+            const baseToken = pair.baseToken || pair.token || {};
+            const quoteToken = pair.quoteToken || {};
+            const priceUsd = Number(pair.priceUsd ?? 0) || 0;
+            const liquidityUsd = Number(pair.liquidity?.usd ?? pair.liquidityUsd ?? 0) || 0;
+            const volume24h = Number(pair.volume?.h24 ?? 0) || 0;
+            const priceChange24h = Number(pair.priceChange?.h24 ?? pair.priceChange24h ?? 0) || 0;
+            const pairAddress = String(pair.pairAddress ?? pair.address ?? '');
 
-        setResults(data.data);
+            return {
+              name: String(baseToken.name ?? quoteToken.name ?? 'Unknown'),
+              symbol: String(baseToken.symbol ?? quoteToken.symbol ?? 'N/A'),
+              priceUsd,
+              liquidityUsd,
+              volume24h,
+              priceChange24h,
+              dex: String(pair.dexId ?? pair.dex ?? 'unknown'),
+              pairAddress,
+              chainId: String(pair.chainId ?? ''),
+              quoteSymbol: String(quoteToken.symbol ?? ''),
+              url: String(pair.url ?? ''),
+              createdAt: pair.pairCreatedAt ? Number(pair.pairCreatedAt) : undefined,
+            };
+          })
+          .filter((p: any) => p.pairAddress);
+
+        // dedupe
+        const unique = new Map<string, any>();
+        normalized.forEach((item: any) => {
+          if (!unique.has(item.pairAddress)) unique.set(item.pairAddress, item);
+        });
+
+        setResults(Array.from(unique.values()).slice(0, 20));
         setIsOpen(true);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Search error');

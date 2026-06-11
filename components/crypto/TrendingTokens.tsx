@@ -20,14 +20,41 @@ export default function TrendingTokens({
       try {
         setLoading(true);
         setError(null);
-        const res = await fetch('/api/crypto/trending');
+        const res = await fetch('https://api.dexscreener.com/latest/dex/trending');
+        if (!res.ok) throw new Error(`DexScreener ${res.status}`);
         const data = await res.json();
 
-        if (!data.success) {
-          throw new Error(data.error || 'Failed to fetch tokens');
-        }
+        const pairs = data?.pairs ?? [];
+        // normalize similar to server
+        const normalized = pairs
+          .map((pair: any) => {
+            const baseToken = pair.baseToken || pair.token || {};
+            const quoteToken = pair.quoteToken || {};
+            const priceUsd = Number(pair.priceUsd ?? 0) || 0;
+            const liquidityUsd = Number(pair.liquidity?.usd ?? pair.liquidityUsd ?? 0) || 0;
+            const volume24h = Number(pair.volume?.h24 ?? 0) || 0;
+            const priceChange24h = Number(pair.priceChange?.h24 ?? pair.priceChange24h ?? 0) || 0;
+            const pairAddress = String(pair.pairAddress ?? pair.address ?? '');
 
-        setTokens(data.data);
+            return {
+              name: String(baseToken.name ?? quoteToken.name ?? 'Unknown'),
+              symbol: String(baseToken.symbol ?? quoteToken.symbol ?? 'N/A'),
+              priceUsd,
+              liquidityUsd,
+              volume24h,
+              priceChange24h,
+              dex: String(pair.dexId ?? pair.dex ?? 'unknown'),
+              pairAddress,
+              chainId: String(pair.chainId ?? ''),
+              quoteSymbol: String(quoteToken.symbol ?? ''),
+              url: String(pair.url ?? ''),
+              createdAt: pair.pairCreatedAt ? Number(pair.pairCreatedAt) : undefined,
+            };
+          })
+          .filter((p: any) => p.pairAddress)
+          .slice(0, 20);
+
+        setTokens(normalized);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Unknown error');
       } finally {
@@ -37,8 +64,8 @@ export default function TrendingTokens({
 
     fetchTrending();
 
-    // Refresh every 15 seconds
-    const interval = setInterval(fetchTrending, 15000);
+    // Refresh every 3 seconds for real-time feel
+    const interval = setInterval(fetchTrending, 3000);
     return () => clearInterval(interval);
   }, []);
 
