@@ -88,9 +88,13 @@ function normalizeStoredUser(rawUser: Partial<StoredUser>): StoredUser {
     : [];
 
   const rawWallet = typeof rawUser.walletBalance === 'number' ? rawUser.walletBalance : undefined;
-  const computedWallet = (typeof rawWallet === 'number' && rawWallet > 0)
-    ? rawWallet
-    : (txs.length ? txs[0].balance : 0);
+  // Use stored walletBalance if valid; otherwise use latest transaction balance; default to 0
+  let computedWallet = 0;
+  if (typeof rawWallet === 'number') {
+    computedWallet = rawWallet;
+  } else if (txs.length > 0) {
+    computedWallet = txs[0].balance;
+  }
 
   return {
     id: rawUser.id ?? crypto.randomUUID(),

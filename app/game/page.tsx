@@ -36,17 +36,44 @@ export default function GamePage() {
       return;
     }
 
+    // Ensure walletBalance is always a number
+    if (storedUser.walletBalance === undefined || storedUser.walletBalance === null) {
+      storedUser.walletBalance = 0;
+    }
+
     setUser(storedUser);
     setFriends(getFriends());
   }, [router]);
+
+  // Refresh balance when window regains focus (e.g., switching from another tab)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        const freshUser = getStoredUser();
+        if (freshUser) {
+          setUser(freshUser);
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, []);
 
   const gameLabel = useMemo(() => {
     return gameType === 'dice' ? 'Dice Battle' : 'Wheel Game';
   }, [gameType]);
 
   const handleStartMatch = () => {
-    if (!user) return;
-    if (user.walletBalance < 100) {
+    // Always refresh user balance in case it changed in another tab/window
+    const freshUser = getStoredUser();
+    if (!freshUser) {
+      router.push('/auth');
+      return;
+    }
+    setUser(freshUser);
+
+    if (freshUser.walletBalance < 100) {
       router.push('/wallet');
       return;
     }
@@ -54,7 +81,7 @@ export default function GamePage() {
       setMessage('Minimum stake is ₦100.');
       return;
     }
-    if (stake > user.walletBalance) {
+    if (stake > freshUser.walletBalance) {
       setMessage('You do not have enough balance. Deposit more to play.');
       return;
     }
